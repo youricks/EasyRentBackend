@@ -1,19 +1,19 @@
 var mysql = require('mysql');
 var pg = require('pg');
 const fs = require('fs');
-// could be put in a file
-var user = process.env.DB_USER;
-var password = process.env.DB_PASSWORD;
-var router = process.env.DB_ROUTER;
-var port = process.env.DB_PORT;
-var applicationPassword = process.env.APP_PASSWORD;
-var database = process.env.DB;
-//var sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname');
-
-sequelize_initial = 'postgres://' + user + ':' + password + '@' + router + ':' + port + '/' + database;
+var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/)
 
 var Sequelize = require('sequelize');
-var sequelize = new Sequelize(sequelize_initial);
+var sequelize = new Sequelize(match[5], match[1], match[2], {
+    dialect:  'postgres',
+    protocol: 'postgres',
+    port:     match[4],
+    host:     match[3],
+    logging: false,
+    dialectOptions: {
+        ssl: true
+    }
+});
 
 var User = sequelize.define('Users', {
 
