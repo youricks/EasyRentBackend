@@ -39,7 +39,7 @@ var user = process.env.DB_USER;
 var password = process.env.DB_PASSWORD;
 var router = process.env.DB_ROUTER;
 var port = process.env.DB_PORT;
-var database = process.env.DB_DATABASE;
+var database = process.env.DB;
 sequelize_initial = 'postgres://' + user + ':' + password + '@' + router + ':' + port + '/' + database;
 
 var Sequelize = require('sequelize');
