@@ -1,7 +1,0 @@
-{"user":"postgres",
-"password":"81828880",
-"router":"192.168.31.199",
-"port":"5432",
-"database":"postgres",
-"applicationPassword":"44c36cfbf6e17209778b968956ac651e"
-}

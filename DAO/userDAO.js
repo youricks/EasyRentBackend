@@ -2,14 +2,12 @@ var mysql = require('mysql');
 var pg = require('pg');
 const fs = require('fs');
 // could be put in a file
-var text = fs.readFileSync('databaseInfo.txt','utf8');
-var databaseInfo = JSON.parse(text);
-var user = databaseInfo.user;
-var password = databaseInfo.password;
-var router = databaseInfo.router;
-var port = databaseInfo.port;
-var applicationPassword = databaseInfo.applicationPassword;
-var database = databaseInfo.database;
+var user = process.env.DB_USER;
+var password = process.env.DB_PASSWORD;
+var router = process.env.DB_ROUTER;
+var port = process.env.DB_PORT;
+var applicationPassword = process.env.APP_PASSWORD;
+var database = process.env.DB;
 //var sequelize = new Sequelize('postgres://user:pass@example.com:5432/dbname');
 
 sequelize_initial = 'postgres://' + user + ':' + password + '@' + router + ':' + port + '/' + database;
