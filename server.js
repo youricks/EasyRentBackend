@@ -38,7 +38,7 @@ app.use(bodyParser.json());
 
 //StormPath e.g.====================================================================================================
 //https://api.stormpath.com/ui2/index.html#/quickstart/none/nodejs/backend/project-type/existing
-var port = 8003;        // set our port
+var port = process.env.PORT;        // set our port
 
 // ROUTES FOR OUR API
 // =============================================================================
