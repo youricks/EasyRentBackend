@@ -26,11 +26,10 @@ console.log = function(info){logger.info(info)}
 
 // key 3
 // AIzaSyAgKyx94f3Fww8E2K2-l9MP4LZh56RHWBE
-cloudinary.config({ 
-  cloud_name: 'youricks', 
-  api_key: '819382346218816', 
-  api_secret: 'xbSGbLYjlgQZAncDZyg4xNtagyo'
-});
+console.log(".....")
+console.log(cloudinary.cloudinary_js_config())
+
+
 
 const fs = require('fs');
 
@@ -228,19 +227,19 @@ function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch
     }
     if (order%4 == 0){
         console.log("divisible 0: " + order);
-        distance.apiKey = apiKey[4];
+        distance.apiKey = apiKey[0];
     }
     else if (order%4 == 1){
         console.log("divisible 1: " + order);
-        distance.apiKey = apiKey[5];
+        distance.apiKey = apiKey[1];
     }
     else if (order%4 == 2){
         console.log("divisible 2: " + order);
-        distance.apiKey = apiKey[6];
+        distance.apiKey = apiKey[2];
     }
     else {
         console.log("divisible 3: " + order);
-        distance.apiKey = apiKey[7];
+        distance.apiKey = apiKey[3];
     }
 
     distance.get(
@@ -301,7 +300,10 @@ function comparePostDistance(postA, postB){
 
 
 
-var Users = userDao.getSelf;
+var User = userDao.getSelf;
+
+
+
 
 module.exports = {
     getSelf: Posts,
