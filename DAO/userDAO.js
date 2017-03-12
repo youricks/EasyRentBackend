@@ -67,7 +67,7 @@ var User = sequelize.define('Users', {
     city: {
         type: Sequelize.STRING
     },
-    otherConteactInfo: {
+    otherContactInfo: {
         type: Sequelize.STRING
     },
     sentPosts: {
@@ -196,6 +196,21 @@ module.exports = {
         User.findOne({where: {id: userId}}).then(function(object){
             if (object){
                 req.user = object;
+            }
+            else{
+                console.log("no user found");
+                req.user = "no user found"
+            }
+            next();
+        })
+    },
+
+ 
+    getUserContactById: function(req, res, next){
+        var userId = req.params.userId;
+        User.findOne({where: {id: userId}}).then(function(object){
+            if (object){
+                req.user = {userId: object.id, email: object.email, phoneNumber: object.phoneNumber, otherContactInfo: object.otherContactInfo};
             }
             else{
                 console.log("no user found");

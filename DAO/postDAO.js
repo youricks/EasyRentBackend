@@ -124,6 +124,9 @@ var Posts = sequelize.define('Posts', {
  isPetAllowed: {
   type: Sequelize.BOOLEAN
  },
+ isSmokingAllowed: {
+  type: Sequelize.BOOLEAN    
+ },
  isSingleOnly: {
   type: Sequelize.BOOLEAN
  },
@@ -298,7 +301,6 @@ function comparePostDistance(postA, postB){
 
 
 var User = userDao.getSelf;
-
 
 
 
