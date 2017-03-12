@@ -241,7 +241,9 @@ function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch
         console.log("divisible 3: " + order);
         distance.apiKey = apiKey[3];
     }
-
+    console.log("======");
+    console.log(origin);
+    console.log(dests);
     distance.get(
     {
         mode: 'walking',
