@@ -41,12 +41,7 @@ var User = sequelize.define('Users', {
         type: Sequelize.STRING
     },
     email: {
-        type: Sequelize.STRING,
-        isEmail: true,
-        validate: {
-    		//is: ["^[a-zA-Z0-9!@#$%^&*]+$",'i']
-            isEmail: true
-    	}
+        type: Sequelize.STRING
     },
     phoneNumber: {
         type: Sequelize.STRING
@@ -225,28 +220,18 @@ module.exports = {
     },
 
     userUpdate: function(req, res, next){
-        /*
-        avatar = "https://graph.facebook.com/v2.8/598389967038082/picture?type=normal&width=250&height=250";
-        city = "<null>";
-        company = "<null>";
-        email = "<null>";
-        gender = "<null>";
-        occupation = "<null>";
-        otherConteactInfo = "<null>";
-        phoneNumber = "<null>";
-        school = "<null>";
-        selfDescription = "<null>";
-        userNickname = "<null>";
-        */
         console.log("call");
         var id = req.body.id;
         console.log(req.body);
         console.log("id: " + id);
         
         User.findOne({where: {id: req.body.id}}).then(function(selectedUser){
+            console.log("before if");
             if (selectedUser){
+                console.log("in the if");
                 selectedUser.updateAttributes({
                     // avatar needs to be updated
+                    avatar: req.body.avatar,
                     selfDescription: req.body.selfDescription,
                     userName: req.body.userName,
                     city: req.body.city,
@@ -260,8 +245,10 @@ module.exports = {
                     phoneNumber: req.body.phoneNumber,
                     otherConteactInfo: req.body.otherConteactInfo
                 });
+                console.log("set req.user");
                 req.user = selectedUser;
             }
+            console.log("before next");
             next();
         })
         
