@@ -258,7 +258,7 @@ module.exports = {
                     job: req.body.job,
                     email: req.body.email,
                     phoneNumber: req.body.phoneNumber,
-                    otherConteactInfo: req.body.otherConteactInfo
+                    otherContactInfo: req.body.otherContactInfo
                 });
                 console.log("set req.user");
                 req.user = selectedUser;
