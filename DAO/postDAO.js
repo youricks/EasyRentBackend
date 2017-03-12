@@ -148,7 +148,7 @@ hasBath: {
 },
 images: {
     type: Sequelize.ARRAY(Sequelize.STRING)
-}
+},
 other: {
   type: Sequelize.TEXT
 }
