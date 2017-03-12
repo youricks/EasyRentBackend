@@ -38,6 +38,12 @@ router.get('/user/userBasicInfo/:userId', userDao.getUserBasicById, function(req
     next();
 });
 
+//get the user's contact info by userId
+router.get('/user/userContactInfo/:userId', userDao.getUserContactById, function(req, res, next) {
+    res.json({message : 'success', user: req.user});
+    next();
+});
+
 // update user info
 router.post('/user/userUpdate', userDao.userUpdate, function(req, res, next) {
     res.json({message : 'success', user: req.user});
