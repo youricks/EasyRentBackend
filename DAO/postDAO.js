@@ -146,6 +146,9 @@ hasGym: {
 hasBath: {
   type: Sequelize.BOOLEAN
 },
+images: {
+    type: Sequelize.ARRAY(Sequelize.STRING)
+}
 other: {
   type: Sequelize.TEXT
 }
@@ -580,7 +583,8 @@ newPost:function(req, res, next){
       gender: req.body.gender,
       postCode: req.body.postCode,
       latitude: req.body.latitude,
-      longitude: req.body.longitude
+      longitude: req.body.longitude,
+      images: req.body.images
   })
 .then(function(post){
   Users.findOne({where: {id: req.body.userId}}).then(function(object){
