@@ -8,6 +8,7 @@
   "dependencies": {
     "log4js":"latest",
 	"geopoint":"latest",
+	"geolib":"latest",
 	"GeoMatrix": "latest",
     "babel-core": "^6.11.4",
     "babel-loader": "^6.2.4",

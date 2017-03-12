@@ -5,8 +5,9 @@ var postSearchDAO = require('../DAO/postSearchDAO.js');
 var cloudinary = require("cloudinary");
 var multiparty = require("multiparty");
 var apiKey = ['AIzaSyAJZNmL0XqusnUNeGDarIumJNpvHtoCsfw', 'AIzaSyBhhkQrsLDFg8EHBC62YvmuNN72YCTH2mA', 'AIzaSyDjnbNZzGvkCli-IPOWz1vO6oei-TDJT1o', 'AIzaSyAgKyx94f3Fww8E2K2-l9MP4LZh56RHWBE', 'AIzaSyBP6U_BknjXbrX18P1rPwlKQqsy6xlMDrI', 'AIzaSyDXk3sZiFoGP7IJKQn-EjJ8EoxA0Fz5X_w', 'AIzaSyB38TkAKYm6EGz9cUQJPZ90ANqalVGcJPI', 'AIzaSyAZeLDAbb6ChL7_97yRq706Y38N1gbQ2lY', 'AIzaSyBBn5DIJ6keAz-9MXXFcAdZ0O_pGnCvPac'];
-var distance = require('google-distance');
 var path = require('path');
+var GeoPoint = require('geopoint');
+var geolib = require('geolib');
 /* Logger for production
 var logger = require('../Service.js').logger('postDao');
 console.log = function(info){logger.info(info)}
@@ -26,9 +27,6 @@ console.log = function(info){logger.info(info)}
 
 // key 3
 // AIzaSyAgKyx94f3Fww8E2K2-l9MP4LZh56RHWBE
-console.log(".....")
-console.log(cloudinary.cloudinary_js_config())
-
 
 
 const fs = require('fs');
@@ -43,114 +41,114 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
     host:     match[3],
     logging: false,
     dialectOptions: {
-		ssl: true
-	}
+      ssl: true
+  }
 });
 
 var Posts = sequelize.define('Posts', {
  userId: {
     type: Sequelize.STRING,
-      allowNull: false
- },
- title: {
+    allowNull: false
+},
+title: {
   type: Sequelize.STRING,
   allowNull: false
- },
- postCode: {
+},
+postCode: {
   type: Sequelize.STRING,
   allowNull: false
- },
- price : {
+},
+price : {
   type: Sequelize.INTEGER
- },
- postDescription: {
+},
+postDescription: {
 	type: Sequelize.TEXT
- },
- type: {
+},
+type: {
   type: Sequelize.STRING,
-	allowNull: false
- },
- bedroomNumber:{
+  allowNull: false
+},
+bedroomNumber:{
   type: Sequelize.INTEGER,
-	allowNull: false
- },
- washroomNumber:{
+  allowNull: false
+},
+washroomNumber:{
   type: Sequelize.INTEGER,
-	allowNull: false
- },
- livingroomNumber:{
+  allowNull: false
+},
+livingroomNumber:{
   type: Sequelize.INTEGER
- },
- denNumber:{
+},
+denNumber:{
   type: Sequelize.INTEGER
- },
- parking:{
+},
+parking:{
   type: Sequelize.INTEGER
- },
- size:{
+},
+size:{
   type: Sequelize.INTEGER
- },
- leaseTerm:{
+},
+leaseTerm:{
   type: Sequelize.INTEGER
- },
- address: {
+},
+address: {
   type: Sequelize.STRING/*,
-	allowNull: false*/
- },
- latitude: {
+  allowNull: false*/
+},
+latitude: {
     type: Sequelize.DOUBLE,
     allowNull: false
- },
- longitude: {
+},
+longitude: {
     type: Sequelize.DOUBLE,
     allowNull: false
- },
- city:{
+},
+city:{
     type: Sequelize.STRING
- },
- province:{
+},
+province:{
     type: Sequelize.STRING
- },
- country:{
+},
+country:{
     type: Sequelize.STRING
- },
- postCode:{
+},
+postCode:{
     type: Sequelize.STRING
- },
- startingDate: {
+},
+startingDate: {
 	type: Sequelize.INTEGER,
 	allowNull: false
- },
- occupation: {
+},
+occupation: {
   type: Sequelize.STRING
- },
- isPetAllowed: {
+},
+isPetAllowed: {
   type: Sequelize.BOOLEAN
- },
- isSingleOnly: {
+},
+isSingleOnly: {
   type: Sequelize.BOOLEAN
- },
- isJointAllowed: {
+},
+isJointAllowed: {
 	type: Sequelize.BOOLEAN
- },
- gender: {
+},
+gender: {
   type: Sequelize.STRING
- },
- isCloseSubway: {
+},
+isCloseSubway: {
   type: Sequelize.BOOLEAN
- },
- isFurnitureProvided: {
+},
+isFurnitureProvided: {
   type: Sequelize.BOOLEAN
- },
- hasGym: {
+},
+hasGym: {
   type: Sequelize.BOOLEAN
- },
- hasBath: {
+},
+hasBath: {
   type: Sequelize.BOOLEAN
- },
- other: {
+},
+other: {
   type: Sequelize.TEXT
- }
+}
 
  // Not implemented: 
  // 1. Images: maybe saved as array of image ids
@@ -171,23 +169,23 @@ function returnBatches(posts){
 		var thisBatch = [];
 		for (var i=0; i<oneBatch; i++){
             var post = posts[numberSaved+i];
-			thisBatch.push(post);
-		}
-		wholeBatches.push(thisBatch);
-	  	numberLeft = numberLeft - oneBatch;
-	  	numberSaved = numberSaved + oneBatch;
-	  	savedBatch = savedBatch + 1;
-	}
-	if (numberLeft != 0){
-		var thisBatch = [];
-		for (var i=0; i<numberLeft; i++){
-			thisBatch.push(posts[savedBatch * oneBatch + i]);
-		}
-		wholeBatches.push(thisBatch);
-	}
-        console.log("===========================");
+            thisBatch.push(post);
+        }
+        wholeBatches.push(thisBatch);
+        numberLeft = numberLeft - oneBatch;
+        numberSaved = numberSaved + oneBatch;
+        savedBatch = savedBatch + 1;
+    }
+    if (numberLeft != 0){
+      var thisBatch = [];
+      for (var i=0; i<numberLeft; i++){
+       thisBatch.push(posts[savedBatch * oneBatch + i]);
+   }
+   wholeBatches.push(thisBatch);
+}
+console.log("===========================");
 
-	return wholeBatches;
+return wholeBatches;
 }
 
 var postsWithinDistance = [];
@@ -220,78 +218,48 @@ function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch
     // the last batch
     else{
         var rest = postsLength - order*APIOneBatch;
-       
+
         for (var i=0; i<rest; i++){
             dests.push(posts[order*APIOneBatch+i].latitude + "," + posts[order*APIOneBatch+i].longitude);
         }
     }
-    if (order%4 == 0){
-        console.log("divisible 0: " + order);
-        distance.apiKey = apiKey[0];
-    }
-    else if (order%4 == 1){
-        console.log("divisible 1: " + order);
-        distance.apiKey = apiKey[1];
-    }
-    else if (order%4 == 2){
-        console.log("divisible 2: " + order);
-        distance.apiKey = apiKey[2];
-    }
-    else {
-        console.log("divisible 3: " + order);
-        distance.apiKey = apiKey[3];
-    }
-    console.log("======");
-    console.log(origin);
-    console.log(dests);
-    distance.get(
-    {
-        mode: 'walking',
-        origins: origin,
-        destinations: dests
-    },
-    function(err, data) {
-        console.log(distance.apiKey);
-        if (err) {
-            console.log("error order is: "+ order);
-            errorOrders.push(order);
-            return console.log(err);
-        }
-        console.log("order:" + order);
-        for (var i=0; i<data.length; i++){
-            postsWithinDistance.push([posts[order*APIOneBatch+i].id, data[i].distanceValue]);
-        }
-        checker += 1;
-
-        if (checker == batches){
-
-            postsWithinDistance.sort(comparePostDistance);
-
-            var wholeBatches = returnBatches(postsWithinDistance);
-
-            if (batch < wholeBatches.length){
-                console.log("DDD: " + wholeBatches[batch]);
-                req.posts = wholeBatches[batch];
-            }
-            else{
-                req.posts = [];                
-            }
-            
-            var postSearch = postSearchDAO.getSelf;
-            postSearch.sync({force: false}).then(function () {
-                return postSearch.create({
-                    conditions: key,
-                    posts: JSON.stringify(wholeBatches)
-                });
-            }); 
-            for (var i=0; i<errorOrders; i++){
-                console.log(order);
-            }
-            next();
-        }
-
+    var data = [];
+    dests.forEach(function(value){
+        var distance = geolib.getDistanceSimple(
+            {latitude: origin[0].split(",")[0], longitude: origin[0].split(",")[1]},
+            {latitude: parseFloat(value.split(",")[0]), longitude: parseFloat(value.split(",")[1])}, 100);
+        data.push(distance);
     });
+    for (var i=0; i<data.length; i++){
+        postsWithinDistance.push([posts[order*APIOneBatch+i].id, data[i]]);
+    }
+    checker += 1;
 
+    if (checker == batches){
+
+        postsWithinDistance.sort(comparePostDistance);
+
+        var wholeBatches = returnBatches(postsWithinDistance);
+
+        if (batch < wholeBatches.length){
+            req.posts = wholeBatches[batch];
+        }
+        else{
+            req.posts = [];                
+        }
+        
+        var postSearch = postSearchDAO.getSelf;
+        postSearch.sync({force: false}).then(function () {
+            return postSearch.create({
+                conditions: key,
+                posts: JSON.stringify(wholeBatches)
+            });
+        }); 
+        for (var i=0; i<errorOrders; i++){
+            console.log(order);
+        }
+        next();
+    }
 }
 
 
@@ -304,882 +272,50 @@ function comparePostDistance(postA, postB){
 
 var User = userDao.getSelf;
 
-Posts.sync({force: true}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "justin0000",
-  title: "Popular Condo in Toronto",
-  price: 1200, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 3,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "832 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6619309,
-  longitude: -79.3886999,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "melody1111",
-  title: "Popular Condo in Toronto",
-  price: 2000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 4,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "6 Dartmoor Dr, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7907653,
-  longitude: -79.2071157,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "justin0000",
-  title: "Popular Condo in Toronto",
-  price: 500, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 1,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "777 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6608788,
-  longitude: -79.3869442,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "david100",
-  title: "Popular Condo in Toronto",
-  price: 5000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 4,
-  livingroomNumber: 1,
-  washroomNumber: 3,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "45 Glenthorne Dr, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7846808,
-  longitude: -79.1789619,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "zhu100",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 1,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "750 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6596862,
-  longitude: -79.3882517,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "qian1000",
-  title: "Popular Condo in Toronto",
-  price: 6000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 5,
-  livingroomNumber: 1,
-  washroomNumber: 4,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "1001 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6655504,
-  longitude: -79.3894301,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "david100",
-  title: "Popular Condo in Toronto",
-  price: 5000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 4,
-  livingroomNumber: 1,
-  washroomNumber: 3,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "45 Glenthorne Dr, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7846808,
-  longitude: -79.1789619,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "denny100",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "5 Saint Joseph St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6657539,
-  longitude: -79.3877056,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "jack1000",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "214 College St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6590298,
-  longitude: -79.3990824,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "melody1111",
-  title: "Popular Condo in Toronto",
-  price: 2000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 4,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "6 Dartmoor Dr, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7907653,
-  longitude: -79.2071157,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "justin0000",
-  title: "Popular Condo in Toronto",
-  price: 500, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 1,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "777 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6608749,
-  longitude: -79.3869442,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "zhu100",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 1,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "777 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6608788,
-  longitude: -79.3869442,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "qian1000",
-  title: "Popular Condo in Toronto",
-  price: 6000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 5,
-  livingroomNumber: 1,
-  washroomNumber: 4,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "777 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6608788,
-  longitude: -79.3869442,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "david100",
-  title: "Popular Condo in Toronto",
-  price: 5000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 4,
-  livingroomNumber: 1,
-  washroomNumber: 3,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "1265 Military Trail, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7837444,
-  longitude: -79.1898725,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "denny100",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "5 Saint Joseph, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6657539,
-  longitude: -79.3877056,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "jack1000",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "750 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6596862,
-  longitude: -79.3882517,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "melody1111",
-  title: "Popular Condo in Toronto",
-  price: 2000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 4,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "6 Dartmoor Dr, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7907653,
-  longitude: -79.2071157,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "justin0000",
-  title: "Popular Condo in Toronto",
-  price: 500, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 1,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "777 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6608788,
-  longitude: -79.3869442,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "zhu100",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 1,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "777 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6608788,
-  longitude: -79.3869442,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "qian1000",
-  title: "Popular Condo in Toronto",
-  price: 6000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 5,
-  livingroomNumber: 1,
-  washroomNumber: 4,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "777 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6608788,
-  longitude: -79.3869442,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "david100",
-  title: "Popular Condo in Toronto",
-  price: 5000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 4,
-  livingroomNumber: 1,
-  washroomNumber: 3,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "50 Brian Harrison Way, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7735874,
-  longitude: -79.2611048,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "denny100",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "60 Brian Harrison Way, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7733164,
-  longitude: -79.2609172,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "jack1000",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "20 Toronto St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6502479,
-  longitude: -79.3787528,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "jack1000",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "220 Yonge St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.654214,
-  longitude: -79.3836654,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "jack1000",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "9580 Jane St, Vaughan, On, Canada",
-  city: "Vaughan",
-  latitude: 43.8412314,
-  longitude: -79.5412344,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
-Posts.sync({force: false}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "jack1000",
-  title: "Popular Condo in Toronto",
-  price: 1000, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 2,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "3401 Dufferin St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.7256741,
-  longitude: -79.4543567,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true
-  });
-}); 
-
 
 
 
 module.exports = {
     getSelf: Posts,
-  	getByID:function(req, res, next){
+    getByID:function(req, res, next){
     	Posts.findAll({where: {id:req.params.id}}).then(function(object){
-      	req.post=object;
-	  	  var date = object[0].startingDate * 1000;
-	  	  req.post[0].startingDate = moment(date).format('YYYY-MM-DD');
-      	  next();
-  	})},
-	getAllPosts:function(req, res, next){
-		Posts.findAll().then(function(object){
-	  		var batch = req.params.batch;
-			postArray = returnBatches(object);
-			req.posts = postArray[batch];
-			next();
-		}) 
-  	},
+           req.post=object;
+           var date = object[0].startingDate * 1000;
+           req.post[0].startingDate = moment(date).format('YYYY-MM-DD');
+           next();
+       })},
+     getAllPosts:function(req, res, next){
+      Posts.findAll().then(function(object){
+         var batch = req.params.batch;
+         postArray = returnBatches(object);
+         req.posts = postArray[batch];
+         next();
+     }) 
+  },
 
-    getAllPostID:function(req, res, next){
-	    Posts.findAll().then(function(object){
-	     	var ids = [];
-		    var i = 0;
-		    while (object[i]){
-			    ids.push(object[i].id);
-			    i ++;
-		    }
-		    req.posts=ids;
-		    next();
-	    }) 
-    },
-    getUserName:function(req, res, next){
-	    var post = req.post;
-	    req.userName = post[0].userName;
-	    next();
-    },
-  uploadImage:function(req, res, next){
+  getAllPostID:function(req, res, next){
+     Posts.findAll().then(function(object){
+       var ids = [];
+       var i = 0;
+       while (object[i]){
+           ids.push(object[i].id);
+           i ++;
+       }
+       req.posts=ids;
+       next();
+   }) 
+ },
+ getUserName:function(req, res, next){
+     var post = req.post;
+     req.userName = post[0].userName;
+     next();
+ },
+ uploadImage:function(req, res, next){
 
-var cache = [];
-console.log(JSON.stringify(req, function(key, value) {
-    if (typeof value === 'object' && value !== null) {
-        if (cache.indexOf(value) !== -1) {
+    var cache = [];
+    console.log(JSON.stringify(req, function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
             // Circular reference found, discard key
             return;
         }
@@ -1188,63 +324,63 @@ console.log(JSON.stringify(req, function(key, value) {
     }
     return value;
 }));
-	fs.readFile(req.body, function (err, data) {
-	console.log(JSON.stringify(data));
+    fs.readFile(req.body, function (err, data) {
+     console.log(JSON.stringify(data));
 	// ...
 	var newPath = __dirname + "./";
 	fs.writeFile(newPath, data, function (err) {
-	  res.redirect("back");
-	});
-	});
-	next();
-  },
-  getImage: function(req, res, next){
+       res.redirect("back");
+   });
+});
+    next();
+},
+getImage: function(req, res, next){
 	var ImageID = req.params.ImageID;
     res.sendFile(path.resolve(ImageID));
 	//res.sendFile(__dirname + '/../'+ImageID);
-  },
-  updateByID:function(req, res, next){
+},
+updateByID:function(req, res, next){
 	Posts.findOne({where: {PostID:req.params.PostID}}).then(function(object){
-	  if (object){
-		object.updateAttributes({
-		  description: req.params.description,
-		  duration: req.params.duration,
-		  price: req.params.price,
-		  starting_date: req.params.starting_date,
-		  ending_date: req.params.ending_date,
-		  allow_joint_rent: req.params.allow_joint_rent,
-		  requirement: req.params.requirement
-		});
-		req.post=object;
+       if (object){
+          object.updateAttributes({
+            description: req.params.description,
+            duration: req.params.duration,
+            price: req.params.price,
+            starting_date: req.params.starting_date,
+            ending_date: req.params.ending_date,
+            allow_joint_rent: req.params.allow_joint_rent,
+            requirement: req.params.requirement
+        });
+          req.post=object;
 
-	  }
-	  next();
-	}) 
+      }
+      next();
+  }) 
 
-  },
+},
 
 
-    getPostsByDistance: function(req, res, next){
+getPostsByDistance: function(req, res, next){
 
-        var latitude = req.body.latitude;
-        var longitude = req.body.longitude;
-        var selectedCity = req.body.city;
-        var batch = req.params.batch;
-        
-        var pricemin = req.body.pricemin;
-        var pricemax = req.body.pricemax;
-        var termmin = req.body.termmin;
-        var termmax = req.body.termmax;
+    var latitude = req.body.latitude;
+    var longitude = req.body.longitude;
+    var selectedCity = req.body.city;
+    var batch = req.params.batch;
 
-        var washroom = req.body.washroom;
-        var den = req.body.den;
-        var startMonth = req.body.startMonth;
-        var bedroom = req.body.bedroom;
-        var parking = req.body.parking;
-        var type = req.body.type;
-        var startYear = req.body.startYear;
-        var key = JSON.stringify(req.body);
-        var time;
+    var pricemin = req.body.pricemin;
+    var pricemax = req.body.pricemax;
+    var termmin = req.body.termmin;
+    var termmax = req.body.termmax;
+
+    var washroom = req.body.washroom;
+    var den = req.body.den;
+    var startMonth = req.body.startMonth;
+    var bedroom = req.body.bedroom;
+    var parking = req.body.parking;
+    var type = req.body.type;
+    var startYear = req.body.startYear;
+    var key = JSON.stringify(req.body);
+    var time;
 
         // Other Settings
         var isCloseSubway = req.body.isCloseSubway
@@ -1255,29 +391,29 @@ console.log(JSON.stringify(req, function(key, value) {
         var hasGym = req.body.hasGym
         var hasBath = req.body.hasBath
         var otherSettings = {isCloseSubway: isCloseSubway, isFurnitureProvided: isFurnitureProvided, 
-                              hasGym: hasGym, hasBath: hasBath,
-                              isSingleOnly: isSingleOnly, isPetAllowed: isPetAllowed,
-                              isJointAllowed: isJointAllowed}
+          hasGym: hasGym, hasBath: hasBath,
+          isSingleOnly: isSingleOnly, isPetAllowed: isPetAllowed,
+          isJointAllowed: isJointAllowed}
 
-        var ZERO = 0;
-        var largeNumber = 100000000;
-        var priceMin = ZERO;
-        var termMin = ZERO;
-        var bedroomMin = ZERO; 
-        var washroomMin = ZERO;
-        var denMin = ZERO;
-        var parkingMin = ZERO;
-        var priceMax = largeNumber;
-        var termMax = largeNumber;
-        var bedroomMax = largeNumber;
-        var washroomMax = largeNumber;
-        var denMax = largeNumber;
-        var parkingMax = largeNumber;
-        var type = ["Condo", "House", "Apartment"];
-        var startYear = 10000;
-        var startMonth = 10000;
+          var ZERO = 0;
+          var largeNumber = 100000000;
+          var priceMin = ZERO;
+          var termMin = ZERO;
+          var bedroomMin = ZERO; 
+          var washroomMin = ZERO;
+          var denMin = ZERO;
+          var parkingMin = ZERO;
+          var priceMax = largeNumber;
+          var termMax = largeNumber;
+          var bedroomMax = largeNumber;
+          var washroomMax = largeNumber;
+          var denMax = largeNumber;
+          var parkingMax = largeNumber;
+          var type = ["Condo", "House", "Apartment"];
+          var startYear = 10000;
+          var startMonth = 10000;
 
-        if (req.body.pricemin && req.body.pricemin != ""){
+          if (req.body.pricemin && req.body.pricemin != ""){
             priceMin = Number(req.body.pricemin);
         }
         if (req.body.pricemax && req.body.pricemax != ""){
@@ -1349,29 +485,29 @@ console.log(JSON.stringify(req, function(key, value) {
                   washroomNumber:{$gte: washroomMin},
                   denNumber:{$gte: denMin},
                   parking:{$gte: parkingMin}
-                }
+              }
 
-                for (var key in otherSettings) {
+              for (var key in otherSettings) {
                   if (otherSettings[key] == "true") {
                     filterMap[key] = true
-                  }
                 }
+            }
 
-                Posts.findAll({where: filterMap}).then(function(object){
-                    var posts = [];
-                    var i = 0;
-                    checker = 0;
-                    postsWithinDistance = [];
+            Posts.findAll({where: filterMap}).then(function(object){
+                var posts = [];
+                var i = 0;
+                checker = 0;
+                postsWithinDistance = [];
 
-                    while (object[i]){
-                        post = object[i];
-                        posts.push({
-                            id: post.id,
-                            latitude: post.latitude,
-                            longitude: post.longitude
-                        });
-                        i ++;
-                    }
+                while (object[i]){
+                    post = object[i];
+                    posts.push({
+                        id: post.id,
+                        latitude: post.latitude,
+                        longitude: post.longitude
+                    });
+                    i ++;
+                }
                     /*      
                     for (t=0; t<posts.length; t++){
                         post = posts[t];
@@ -1383,84 +519,84 @@ console.log(JSON.stringify(req, function(key, value) {
                     rankAllPostsByDistance(posts, req, latitude, longitude, posts.length, batch, key, next);
 
                 }) 
-            }
-        }) 
-    },
-    getBasicPostInfo: function(req, res, next){
-        Posts.findOne({where: {id:req.params.PostID}}).then(function(object){
-            if (object){
-                req.post=[object["id"], object["address"], object["price"], object["bedroomNumber"], object["washroomNumber"], object["denNumber"], object["createdAt"], object["title"]];
-            }
-            else{
-                console.log("Object is null");
-            }
-            next();
-        })         
-    },
-    removePost: function(req, res, next){
-        Posts.destroy({
-            where: {
-                id:req.params.postId
-            }
-        }).then(function(object){
-            if (object){
-                req.message = "success"
-            }
-            else{
-                req.message = "failed"
-            }
-            next();
-        })      
-    },
+        }
+    }) 
+},
+getBasicPostInfo: function(req, res, next){
+    Posts.findOne({where: {id:req.params.PostID}}).then(function(object){
+        if (object){
+            req.post=[object["id"], object["address"], object["price"], object["bedroomNumber"], object["washroomNumber"], object["denNumber"], object["createdAt"], object["title"]];
+        }
+        else{
+            console.log("Object is null");
+        }
+        next();
+    })         
+},
+removePost: function(req, res, next){
+    Posts.destroy({
+        where: {
+            id:req.params.postId
+        }
+    }).then(function(object){
+        if (object){
+            req.message = "success"
+        }
+        else{
+            req.message = "failed"
+        }
+        next();
+    })      
+},
 
 
-  newPost:function(req, res, next){
+newPost:function(req, res, next){
     var roomNumber = req.body.roomNumber.split(",");
-	Posts.create({
+    Posts.create({
       title: req.body.title,
       userId: req.body.userId,
       city: req.body.city,
-  	  price: req.body.price, 
-  	  postDescription: req.body.postDescription,
-  	  type: req.body.type,
-  	  bedroomNumber: roomNumber[0][roomNumber[0].length-1] == "+" ? 10 : roomNumber[0][0],
-  	  livingroomNumber: roomNumber[1][roomNumber[1].length-1] == "+" ? 10 : roomNumber[1][0],
-  	  washroomNumber: roomNumber[2][roomNumber[2].length-1] == "+" ? 10 : roomNumber[2][0],
-  	  denNumber: roomNumber[3][roomNumber[3].length-1] == "+" ? 10:roomNumber[3][0],
-  	  parking: req.body.parking,
-  	  size: req.body.size,
-  	  leaseTerm: req.body.leaseTerm,
-  	  address: req.body.address,
-  	  startingDate: moment(req.body.startingDate).unix(),
-  	  endDate: moment(req.body.endDate).unix(),
-  	  occupation: req.body.occupation,
+      price: req.body.price, 
+      postDescription: req.body.postDescription,
+      type: req.body.type,
+      bedroomNumber: roomNumber[0][roomNumber[0].length-1] == "+" ? 10 : roomNumber[0][0],
+      livingroomNumber: roomNumber[1][roomNumber[1].length-1] == "+" ? 10 : roomNumber[1][0],
+      washroomNumber: roomNumber[2][roomNumber[2].length-1] == "+" ? 10 : roomNumber[2][0],
+      denNumber: roomNumber[3][roomNumber[3].length-1] == "+" ? 10:roomNumber[3][0],
+      parking: req.body.parking,
+      size: req.body.size,
+      leaseTerm: req.body.leaseTerm,
+      address: req.body.address,
+      startingDate: moment(req.body.startingDate).unix(),
+      endDate: moment(req.body.endDate).unix(),
+      occupation: req.body.occupation,
       hasGym: req.body.hasGym,
       hasBath: req.body.hasBath,
-  	  isPetAllowed: req.body.isPetAllowed,
+      isPetAllowed: req.body.isPetAllowed,
       isCloseSubway: req.body.isCloseSubway,
-  	  isSingleOnly: req.body.isSingleOnly,
-  	  isJointAllowed: req.body.isJointAllowed,
+      isSingleOnly: req.body.isSingleOnly,
+      isJointAllowed: req.body.isJointAllowed,
       isFurnitureProvided: req.body.isFurnitureProvided,
-  	  gender: req.body.gender,
+      gender: req.body.gender,
       postCode: req.body.postCode,
-  	  latitude: req.body.latitude,
-  	  longitude: req.body.longitude
-	  })
-  	.then(function(post){
-      Users.findOne({where: {id: req.body.userId}}).then(function(object){
-        if (object){
-            object.sentPosts.push(post.id)
-            object.updateAttributes({
-                sentPosts: object.sentPosts
-            });
-        }
-      });
-  	  res.json({message : 'success', post: post.dataValues.id});
-  	}).catch(function (error){
-  		console.log("FAILEDDDDDDDDDD");
-        console.log(error);
-  		res.json(error);
-  	});
+      latitude: req.body.latitude,
+      longitude: req.body.longitude
+  })
+.then(function(post){
+  Users.findOne({where: {id: req.body.userId}}).then(function(object){
+    if (object){
+        object.sentPosts.push(post.id)
+        object.updateAttributes({
+            sentPosts: object.sentPosts
+        });
     }
+});
+  res.json({message : 'success', post: post.dataValues.id});
+}).catch(function (error){
+    console.log("FAILEDDDDDDDDDD");
+    console.log(error);
+    res.json(error);
+});
+}
 
 };
