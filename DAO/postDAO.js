@@ -280,6 +280,7 @@ var User = userDao.getSelf;
 
 
 
+
 module.exports = {
     getSelf: Posts,
     getByID:function(req, res, next){

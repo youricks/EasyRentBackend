@@ -151,9 +151,7 @@ module.exports = {
     });
   },
     userLogIn: function(req, res, next){
-        var sentId = req.body.sentId;
-        var appType = req.body.appType;
-        var combinedId = appType + sentId;
+        var combinedId = req.body.id;
         User.findOne({where: {id: combinedId}}).then(function(object){
             if (object){
                 var reqeustUser=object["dataValues"];
@@ -165,11 +163,27 @@ module.exports = {
             else{
                 console.log("no user found");
                 //res.json({message : 'success', sent: "yes"});
-
+                if (req.body.userNickname == null){
+                    console.log("userNickname is null")
+                }
+                else{
+                    console.log("userNickname is not null")                    
+                }
                 User.create({
                     id: combinedId,
                     userName: req.body.userName,
                     avatar: req.body.avatar,
+                    userNickname: req.body.userNickname,
+                    email: req.body.email,
+                    phoneNumber: req.body.phoneNumber,
+                    selfDescription: req.body.selfDescription,
+                    occupation: req.body.occupation,
+                    school: req.body.school,
+                    company: req.body.company,
+                    job: req.body.job,
+                    city: req.body.city,
+                    gender: req.body.gender,
+                    otherContactInfo: req.body.otherContactInfo,
                     favouritePosts: [],
                     sentPosts: []
                 })
