@@ -40,6 +40,9 @@ var User = sequelize.define('Users', {
     avatar: {
         type: Sequelize.STRING
     },
+    avatarId:{
+        type: Sequelize.STRING        
+    },
     email: {
         type: Sequelize.STRING
     },
@@ -173,6 +176,7 @@ module.exports = {
                     id: combinedId,
                     userName: req.body.userName,
                     avatar: req.body.avatar,
+                    avatarId: req.body.avatarId,
                     userNickname: req.body.userNickname,
                     email: req.body.email,
                     phoneNumber: req.body.phoneNumber,
