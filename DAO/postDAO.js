@@ -531,7 +531,7 @@ getPostsByDistance: function(req, res, next){
 getBasicPostInfo: function(req, res, next){
     Posts.findOne({where: {id:req.params.PostID}}).then(function(object){
         if (object){
-            req.post=[object["id"], object["address"], object["price"], object["bedroomNumber"], object["washroomNumber"], object["denNumber"], object["createdAt"], object["title"]];
+            req.post=[object["id"], object["address"], object["price"], object["bedroomNumber"], object["washroomNumber"], object["denNumber"], object["createdAt"], object["title"], object["images"]];
         }
         else{
             console.log("Object is null");
