@@ -584,6 +584,14 @@ removePost: function(req, res, next){
         }
     }).then(function(object){
         if (object){
+            User.findOne({where: {id:req.params.userId}}).then(function(user){
+              if (user){
+                user.sentPosts.remove(parseInt(req.params.postId));
+                user.updateAttributes({
+                  sentPosts: user.sentPosts
+                });
+              }
+            })
             req.message = "success"
         }
         else{
@@ -647,4 +655,15 @@ newPost:function(req, res, next){
 });
 }
 
+};
+
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
 };

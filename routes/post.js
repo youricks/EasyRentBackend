@@ -10,7 +10,7 @@ router.get('/post/postids', postDao.getAllPostID, function(req, res, next) {
 });
 
 // remove post
-router.get('/post/:postId/remove', userDao.verifyUserToken, postDao.removePost, function(req, res, next) {
+router.get('/post/:postId/remove/from/:userId', userDao.verifyUserToken, postDao.removePost, function(req, res, next) {
     res.json({message : req.message, post: req.posts});
 });
 /*
