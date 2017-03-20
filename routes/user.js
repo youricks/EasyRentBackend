@@ -16,12 +16,12 @@ router.get('/user/update/:userName/userNickname=:userNickname&email=:email&gende
 });
 
 //Like a post
-router.get('/user/:userId/like/:postId', userDao.like, function(req, res, next) {
+router.get('/user/:userId/like/:postId', userDao.verifyUserToken, userDao.like, function(req, res, next) {
     res.json({message : 'success'});
     next();
 });
 //Like a post
-router.get('/user/:userId/unlike/:postId', userDao.unlike, function(req, res, next) {
+router.get('/user/:userId/unlike/:postId', userDao.verifyUserToken, userDao.unlike, function(req, res, next) {
     res.json({message : 'success'});
     next();
 });
@@ -45,7 +45,7 @@ router.get('/user/userContactInfo/:userId', userDao.getUserContactById, function
 });
 
 // update user info
-router.post('/user/userUpdate', userDao.userUpdate, function(req, res, next) {
+router.post('/user/userUpdate', userDao.verifyUserToken, userDao.userUpdate, function(req, res, next) {
     res.json({message : 'success', user: req.user});
     next();
 });
