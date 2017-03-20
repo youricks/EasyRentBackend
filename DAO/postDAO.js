@@ -125,9 +125,6 @@ occupation: {
 isPetAllowed: {
   type: Sequelize.BOOLEAN
  },
- isSmokingAllowed: {
-  type: Sequelize.BOOLEAN    
- },
 isSingleOnly: {
   type: Sequelize.BOOLEAN
 },
