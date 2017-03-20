@@ -1,6 +1,7 @@
 var express  = require('express');
 var router = express.Router();
 var postDao = require('../DAO/postDAO.js');
+var userDao = require('../DAO/userDAO.js');
 
 // find all post ids, return together temporarily
 router.get('/post/postids', postDao.getAllPostID, function(req, res, next) {
@@ -9,7 +10,7 @@ router.get('/post/postids', postDao.getAllPostID, function(req, res, next) {
 });
 
 // remove post
-router.get('/post/:postId/remove', postDao.removePost, function(req, res, next) {
+router.get('/post/:postId/remove', userDao.verifyUserToken, postDao.removePost, function(req, res, next) {
     res.json({message : req.message, post: req.posts});
 });
 /*
@@ -48,7 +49,7 @@ router.get('/post/image/:ImageID/', postDao.getImage, function(req, res, next){
 	console.log("Image Donwload.....");
 	next();
 });
-router.post('/post/new/', postDao.newPost, function(req, res, next){
+router.post('/post/new/', userDao.verifyUserToken, postDao.newPost, function(req, res, next){
     console.log("Post Create.....");
     next();
 });

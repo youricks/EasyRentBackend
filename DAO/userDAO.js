@@ -2,7 +2,7 @@ var mysql = require('mysql');
 var pg = require('pg');
 const fs = require('fs');
 var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/)
-
+var applicationPassword = process.env.APP_PASSWORD
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize(match[5], match[1], match[2], {
     dialect:  'postgres',
@@ -134,23 +134,32 @@ module.exports = {
     }) 
   },
   verifyUserToken: function(req, res, next){
-    console.log("entered")
     var https = require('https');
-    console.log("https required")
-    //var sampleInput = 'EAAZAININjbQkBAPMy9SvnXZClADREkb9i3baeQw1qvq02RzIICkIawUZBb8sDOnsgZCZCGRdv3Td8nQFBvK1bnwqhWkfrCblC7jfqjoKecRXTh9UNsJHTlTHEjepjOk2WZC0VdGwfjzWGtOVFuC8r4sa0AgEQli2k1ISU6IZASoBMjTpfW1Y9ZBxIAEeXEXVbhFBW4kdZCBdtZAHDzNUMSy34SfhRZAPHZBWNZC9RFZA5dyKeu8wZDZD'
     var accessToken = '1768240240094473|' + applicationPassword;
-    var inputToken = req.params.token;
+    console.log(JSON.stringify(req.query.token));
+    var inputToken = req.query.token;
+    if (!inputToken){
+        res.status(403).send("Authentication Failed, please log in again");
+        return;
+    }
     var url = `https:\/\/graph.facebook.com/debug_token?input_token=${inputToken}&access_token=${accessToken}`
     https.get(url, (response) => {
       console.log('statusCode:', response.statusCode);
       console.log('headers:', response.headers);
-      response.setEncoding('utf8');
+      //response.setEncoding('utf8');
       response.on('data', (d) => {
-        res.json(d);
-        next();
+        if ( JSON.parse(d.toString('utf8')).data.is_valid) {
+            next();
+        }
+        else {
+            res.status(403).send("Authentication Failed, please log in again");
+            return;
+        }
       });
     }).on('error', (e) => {
       console.error(e);
+      res.status(403).send(e);
+      return;
     });
   },
     userLogIn: function(req, res, next){
