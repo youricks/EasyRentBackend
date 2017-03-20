@@ -590,7 +590,7 @@ newPost:function(req, res, next){
       images: req.body.images
   })
 .then(function(post){
-  Users.findOne({where: {id: req.body.userId}}).then(function(object){
+  User.findOne({where: {id: req.body.userId}}).then(function(object){
     if (object){
         object.sentPosts.push(post.id)
         object.updateAttributes({
