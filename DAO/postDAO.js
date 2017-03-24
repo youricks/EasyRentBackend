@@ -281,43 +281,6 @@ function comparePostDistance(postA, postB){
 
 
 var User = userDao.getSelf;
-Posts.sync({force: true}).then(function () {
-  // Table created
-  return Posts.create({
-  userId: "justin0000",
-  title: "Popular Condo in Toronto",
-  price: 1200, 
-  postDescription: "a new post",
-  type: "Condo",
-  bedroomNumber: 3,
-  livingroomNumber: 1,
-  washroomNumber: 2,
-  denNumber: 1,
-  parking: 1,
-  size: 990,
-  leaseTerm: 12,
-  address: "832 Bay St, Toronto, On, Canada",
-  city: "Toronto",
-  latitude: 43.6619309,
-  longitude: -79.3886999,
-  startingDate: 1479685007,
-  occupation: "Worker",
-  isPetAllowed: true,
-  isSingleOnly: true,
-  isJointAllowed: true,
-  gender: "female",
-  isCloseSubway: true,
-  images: [],
-  hasGym: true,
-  isFurnitureProvided: true,
-  hasBath: true,
-  email: "gmail",
-  phoneNumber: "6478634444",
-  otherContact: ""
-  });
-}); 
-
-
 
 module.exports = {
     getSelf: Posts,
