@@ -536,6 +536,7 @@ getBasicPostInfo: function(req, res, next){
         }
         else{
             console.log("Object is null");
+            req.post=[req.params.PostID, "", 0, 0, 0, 0, "1994-11-24", "已删除", ""];
         }
         next();
     })         
