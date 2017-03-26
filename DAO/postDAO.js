@@ -95,6 +95,9 @@ address: {
   type: Sequelize.STRING/*,
   allowNull: false*/
 },
+unit: {
+  type: Sequelize.INTEGER
+},
 latitude: {
     type: Sequelize.DOUBLE,
     allowNull: false
@@ -286,11 +289,15 @@ module.exports = {
     getSelf: Posts,
     getByID:function(req, res, next){
     	Posts.findAll({where: {id:req.params.id}}).then(function(object){
-           req.post=object;
-           var date = object[0].startingDate * 1000;
-           req.post[0].startingDate = moment(date).format('YYYY-MM-DD');
-           next();
-       })},
+            req.post=object;
+            console.log(";;;;;");
+            console.log(object);
+            if (object.length != 0){
+                var date = object[0].startingDate * 1000;
+                req.post[0].startingDate = moment(date).format('YYYY-MM-DD');
+            }
+            next();
+        })},
      getAllPosts:function(req, res, next){
       Posts.findAll().then(function(object){
          var batch = req.params.batch;
@@ -583,6 +590,7 @@ newPost:function(req, res, next){
       size: req.body.size,
       leaseTerm: req.body.leaseTerm,
       address: req.body.address,
+      //unit: req.body.unit,
       startingDate: moment(req.body.startingDate).unix(),
       endDate: moment(req.body.endDate).unix(),
       occupation: req.body.occupation,

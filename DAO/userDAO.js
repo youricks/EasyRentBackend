@@ -133,6 +133,22 @@ module.exports = {
       next();
     }) 
   },
+    userPostUpdate:function(req, res, next){
+        console.log("calling userPostUpdate")
+        console.log(req.body.id)
+        User.findOne({where: {id:req.body.id}}).then(function(object){
+                        console.log("object")
+
+            console.log(object)
+            if (object){
+                object.updateAttributes({
+                    sentPosts: req.body.sentPosts
+                });
+                req.user = object;
+            }
+            next()
+        }) 
+    },
   verifyUserToken: function(req, res, next){
     var https = require('https');
     var accessToken = '1768240240094473|' + applicationPassword;
