@@ -388,11 +388,12 @@ getPostsByDistance: function(req, res, next){
 
     var washroom = req.body.washroom;
     var den = req.body.den;
-    var startMonth = req.body.startMonth;
     var bedroom = req.body.bedroom;
     var parking = req.body.parking;
     var type = req.body.type;
-    var startYear = req.body.startYear;
+    var startingDate = req.body.startingDate;
+    console.log("startingDate")
+    console.log(startingDate)
     var key = JSON.stringify(req.body);
     var time;
 
@@ -424,8 +425,6 @@ getPostsByDistance: function(req, res, next){
           var denMax = largeNumber;
           var parkingMax = largeNumber;
           var type = ["Condo", "House", "Apartment"];
-          var startYear = 10000;
-          var startMonth = 10000;
 
           if (req.body.pricemin && req.body.pricemin != ""){
             priceMin = Number(req.body.pricemin);
@@ -438,12 +437,6 @@ getPostsByDistance: function(req, res, next){
         }
         if (req.body.termmax && req.body.termmax != ""){
             termMax = Number(req.body.termmax);
-        }
-        if (req.body.startYear && req.body.startYear != ""){
-            startYear = Number(req.body.startYear);
-        }
-        if (req.body.startMonth && req.body.startMonth != ""){
-            startMonth = Number(req.body.startMonth);
         }
         if (req.body.type && req.body.type != ""){
             type = [req.body.type];
@@ -491,15 +484,35 @@ getPostsByDistance: function(req, res, next){
             }
             else{
                 var filterMap = {
-                  city: selectedCity, 
-                  price:{$gte: priceMin, $lte: priceMax},
-                  leaseTerm:{$gte: termMin, $lte: termMax},
-                  type: type,
-                  bedroomNumber:{$gte: bedroomMin},
-                  washroomNumber:{$gte: washroomMin},
-                  denNumber:{$gte: denMin},
-                  parking:{$gte: parkingMin}
-              }
+                    city: selectedCity, 
+                    price:{$gte: priceMin, $lte: priceMax},
+                    leaseTerm:{$gte: termMin, $lte: termMax},
+                    type: type,
+                    bedroomNumber:{$gte: bedroomMin},
+                    washroomNumber:{$gte: washroomMin},
+                    denNumber:{$gte: denMin},
+                    parking:{$gte: parkingMin},
+                }
+                if (startingDate != ""){
+                    startingDateMoment = moment(startingDate).unix()
+                    console.log("startingDateMoment: " + startingDateMoment)
+                    filterMap = {
+                        city: selectedCity, 
+                        price:{$gte: priceMin, $lte: priceMax},
+                        leaseTerm:{$gte: termMin, $lte: termMax},
+                        type: type,
+                        bedroomNumber:{$gte: bedroomMin},
+                        washroomNumber:{$gte: washroomMin},
+                        denNumber:{$gte: denMin},
+                        parking:{$gte: parkingMin},
+                        startingDate:{$lte: startingDateMoment}
+                    }
+                }
+                else{
+                    console.log("startingDate is empty string")
+                }
+
+
 
               for (var key in otherSettings) {
                   if (otherSettings[key] == "true") {
@@ -512,27 +525,24 @@ getPostsByDistance: function(req, res, next){
                 var i = 0;
                 checker = 0;
                 postsWithinDistance = [];
-
-                while (object[i]){
-                    post = object[i];
-                    posts.push({
-                        id: post.id,
-                        latitude: post.latitude,
-                        longitude: post.longitude
-                    });
-                    i ++;
-                }
-                    /*      
-                    for (t=0; t<posts.length; t++){
-                        post = posts[t];
-                        rankPostByDistance(post, req, latitude, longitude, posts.length, batch, key, next);
+                if (object.length > 0){
+                    while (object[i]){
+                        post = object[i];
+                        posts.push({
+                            id: post.id,
+                            latitude: post.latitude,
+                            longitude: post.longitude
+                        });
+                        i ++;
                     }
-                    time = Date()
-                    console.log(time)
-                    */
                     rankAllPostsByDistance(posts, req, latitude, longitude, posts.length, batch, key, next);
+                }
+                else{
+                    req.posts = [];                
+                    next()
+                }
 
-                }) 
+            }) 
         }
     }) 
 },
@@ -575,6 +585,8 @@ removePost: function(req, res, next){
 
 newPost:function(req, res, next){
     var roomNumber = req.body.roomNumber.split(",");
+    console.log("create starting date")
+    console.log(req.body.startingDate)
     Posts.create({
       title: req.body.title,
       userId: req.body.userId,

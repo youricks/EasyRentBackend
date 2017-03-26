@@ -50,6 +50,12 @@ router.post('/user/userUpdate', userDao.verifyUserToken, userDao.userUpdate, fun
     next();
 });
 
+// update user's posts
+router.post('/user/postUpdate', userDao.verifyUserToken, userDao.userPostUpdate, function(req, res, next) {
+    res.json({message : 'success', user: req.user});
+    next();
+});
+
 router.post('/user/create', userDao.setUser, function(req, res, next) {
     res.json({message : 'success', user: req.user});
     next();
