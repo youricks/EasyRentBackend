@@ -241,7 +241,7 @@ function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch
         var distance = geolib.getDistanceSimple(
             {latitude: origin[0].split(",")[0], longitude: origin[0].split(",")[1]},
             {latitude: parseFloat(value.split(",")[0]), longitude: parseFloat(value.split(",")[1])}, 100);
-        data.push(distance);
+        data.push(distance+100);
     });
     for (var i=0; i<data.length; i++){
         postsWithinDistance.push([posts[order*APIOneBatch+i].id, data[i]]);
