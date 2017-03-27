@@ -602,7 +602,7 @@ newPost:function(req, res, next){
       size: req.body.size,
       leaseTerm: req.body.leaseTerm,
       address: req.body.address,
-      //unit: req.body.unit,
+      unit: req.body.unit,
       startingDate: moment(req.body.startingDate).unix(),
       endDate: moment(req.body.endDate).unix(),
       occupation: req.body.occupation,
