@@ -294,18 +294,23 @@ module.exports = {
             console.log(object);
             if (object.length != 0){
                 var date = object[0].startingDate * 1000;
+                req.message = "success"
                 req.post[0].startingDate = moment(date).format('YYYY-MM-DD');
             }
+            else{
+                req.message = "failed"
+                req.post = "deleted"
+            }
             next();
-        })},
-     getAllPosts:function(req, res, next){
-      Posts.findAll().then(function(object){
-         var batch = req.params.batch;
-         postArray = returnBatches(object);
-         req.posts = postArray[batch];
-         next();
-     }) 
-  },
+    })},
+    getAllPosts:function(req, res, next){
+        Posts.findAll().then(function(object){
+        var batch = req.params.batch;
+        postArray = returnBatches(object);
+        req.posts = postArray[batch];
+        next();
+        }) 
+    },
 
   getAllPostID:function(req, res, next){
      Posts.findAll().then(function(object){
@@ -369,7 +374,7 @@ updateByID:function(req, res, next){
 
       }
       next();
-  }) 
+    }) 
 
 },
 
@@ -456,13 +461,9 @@ getPostsByDistance: function(req, res, next){
             parkingMin = Number(req.body.parking[0]);
         }
 
-        console.log("key: " + key);
-
         var postSearch = postSearchDAO.getSelf;
 
-        postSearch.findAll({where: {conditions: key}}).then(function(object){
-            console.log("object length: " + object.length);
-            
+        postSearch.findAll({where: {conditions: key}}).then(function(object){            
             // case 1: the key exists
             if (object.length != 0){
                 console.log("conditions found");
@@ -559,23 +560,33 @@ getBasicPostInfo: function(req, res, next){
     })         
 },
 removePost: function(req, res, next){
+  console.log("The destroyed id: " + req.params.postId)
     Posts.destroy({
         where: {
             id:req.params.postId
         }
     }).then(function(object){
+        console.log("destroy result: " + object)
         if (object){
             User.findOne({where: {id:req.params.userId}}).then(function(user){
-              if (user){
-                user.sentPosts.remove(parseInt(req.params.postId));
-                user.updateAttributes({
-                  sentPosts: user.sentPosts
-                });
-              }
+                console.log("user: " + user);
+                if (user){
+                    console.log("In user")
+                    console.log(parseInt(req.params.postId))
+                    user.sentPosts.remove(parseInt(req.params.postId));
+                    user.updateAttributes({
+                        sentPosts: user.sentPosts
+                    });
+                }
+                else{
+                    console.log("User is not found")
+                }
             })
+            console.log("destroy successed")
             req.message = "success"
         }
         else{
+            console.log("destroy failed")
             req.message = "failed"
         }
         next();
@@ -588,40 +599,40 @@ newPost:function(req, res, next){
     console.log("create starting date")
     console.log(req.body.startingDate)
     Posts.create({
-      title: req.body.title,
-      userId: req.body.userId,
-      city: req.body.city,
-      price: req.body.price, 
-      postDescription: req.body.postDescription,
-      type: req.body.type,
-      bedroomNumber: roomNumber[0][roomNumber[0].length-1] == "+" ? 10 : roomNumber[0][0],
-      livingroomNumber: roomNumber[1][roomNumber[1].length-1] == "+" ? 10 : roomNumber[1][0],
-      washroomNumber: roomNumber[2][roomNumber[2].length-1] == "+" ? 10 : roomNumber[2][0],
-      denNumber: roomNumber[3][roomNumber[3].length-1] == "+" ? 10:roomNumber[3][0],
-      parking: req.body.parking,
-      size: req.body.size,
-      leaseTerm: req.body.leaseTerm,
-      address: req.body.address,
-      unit: req.body.unit,
-      startingDate: moment(req.body.startingDate).unix(),
-      endDate: moment(req.body.endDate).unix(),
-      occupation: req.body.occupation,
-      hasGym: req.body.hasGym,
-      hasBath: req.body.hasBath,
-      isPetAllowed: req.body.isPetAllowed,
-      isCloseSubway: req.body.isCloseSubway,
-      isSingleOnly: req.body.isSingleOnly,
-      isJointAllowed: req.body.isJointAllowed,
-      isFurnitureProvided: req.body.isFurnitureProvided,
-      gender: req.body.gender,
-      postCode: req.body.postCode,
-      latitude: req.body.latitude,
-      longitude: req.body.longitude,
-      images: req.body.images,
-      email: req.body.email,
-      phoneNumber: req.body.phoneNumber,
-      otherContact: req.body.otherContact
-  })
+        title: req.body.title,
+        userId: req.body.userId,
+        city: req.body.city,
+        price: req.body.price, 
+        postDescription: req.body.postDescription,
+        type: req.body.type,
+        bedroomNumber: roomNumber[0][roomNumber[0].length-1] == "+" ? 10 : roomNumber[0][0],
+        livingroomNumber: roomNumber[1][roomNumber[1].length-1] == "+" ? 10 : roomNumber[1][0],
+        washroomNumber: roomNumber[2][roomNumber[2].length-1] == "+" ? 10 : roomNumber[2][0],
+        denNumber: roomNumber[3][roomNumber[3].length-1] == "+" ? 10:roomNumber[3][0],
+        parking: req.body.parking,
+        size: req.body.size,
+        leaseTerm: req.body.leaseTerm,
+        address: req.body.address,
+        unit: req.body.unit,
+        startingDate: moment(req.body.startingDate).unix(),
+        endDate: moment(req.body.endDate).unix(),
+        occupation: req.body.occupation,
+        hasGym: req.body.hasGym,
+        hasBath: req.body.hasBath,
+        isPetAllowed: req.body.isPetAllowed,
+        isCloseSubway: req.body.isCloseSubway,
+        isSingleOnly: req.body.isSingleOnly,
+        isJointAllowed: req.body.isJointAllowed,
+        isFurnitureProvided: req.body.isFurnitureProvided,
+        gender: req.body.gender,
+        postCode: req.body.postCode,
+        latitude: req.body.latitude,
+        longitude: req.body.longitude,
+        images: req.body.images,
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        otherContact: req.body.otherContact
+    })
 .then(function(post){
   User.findOne({where: {id: req.body.userId}}).then(function(object){
     if (object){

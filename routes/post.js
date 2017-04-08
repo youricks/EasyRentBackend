@@ -23,7 +23,7 @@ router.get('/post/posts/:batch', postDao.getAllPosts, function(req, res, next) {
 
 // find post by PostID
 router.get('/post/:id', postDao.getByID, function(req, res, next) {
-    res.json({message : 'success', post: req.post});
+    res.json({message : req.message, post: req.post});
     next();
 });
 
