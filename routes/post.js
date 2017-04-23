@@ -57,7 +57,7 @@ router.post('/post/new/', userDao.verifyUserToken, postDao.newPost, function(req
 router.post('/posts/:batch', postDao.getPostsByDistance, function(req, res, next){
     console.log("distance retrieved");
     res.json({message : 'success', posts: req.posts});
-
+    
     next();
 });
 

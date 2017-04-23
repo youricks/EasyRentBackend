@@ -8,6 +8,7 @@ var apiKey = ['AIzaSyAJZNmL0XqusnUNeGDarIumJNpvHtoCsfw', 'AIzaSyBhhkQrsLDFg8EHBC
 var path = require('path');
 var GeoPoint = require('geopoint');
 var geolib = require('geolib');
+var APIONEBATCH = 25;
 /* Logger for production
 var logger = require('../Service.js').logger('postDao');
 console.log = function(info){logger.info(info)}
@@ -172,7 +173,7 @@ otherContact: {
 });
 
 function returnBatches(posts){
-	var oneBatch = 10;
+	var oneBatch = APIONEBATCH;
 	var savedBatch = 0;
 	var numberLeft = posts.length;
 	var numberSaved = 0;
@@ -204,23 +205,23 @@ return wholeBatches;
 var postsWithinDistance = [];
 var checker = 0;
 
-function rankAllPostsByDistance(posts, req, latitude, longitude, postsLength, batch, key, next){
+function rankAllPostsByDistance(posts, req, latitude, longitude, postsLength, batch, thePassedKey, next){
     checker = 0;
     var origin = [latitude + "," + longitude];
-    var APIOneBatch = 25;
+    var APIOneBatch = APIONEBATCH;
 
     var batches = Math.ceil(posts.length/APIOneBatch);  //  8/3 -> 3
     //batches = 20;
     console.log("batches: " + batches);
 
     for (var order=0; order<batches; order++){
-        rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch, batches, req, key, next);
+        rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch, batches, req, thePassedKey, next);
     }
 }
 
 var errorOrders = [];
 
-function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch, batches, req, key, next){
+function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch, batches, req, thePassedKey, next){
     var dests = [];
     // not the last batch
     if (order < (batches-1)){
@@ -251,7 +252,7 @@ function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch
     if (checker == batches){
 
         postsWithinDistance.sort(comparePostDistance);
-
+        // format like wholeBatches = [    [ [ 64, 100 ], [ 68, 1800 ], ...... ], [ [ 64, 100 ], [ 68, 1800 ], ...... ] .....      ]
         var wholeBatches = returnBatches(postsWithinDistance);
 
         if (batch < wholeBatches.length){
@@ -263,8 +264,10 @@ function rankOneBatchPosts(posts, batch, origin, order, postsLength, APIOneBatch
         
         var postSearch = postSearchDAO.getSelf;
         postSearch.sync({force: false}).then(function () {
+            console.log("creation in postSearch");
+            console.log("creation key: " + thePassedKey);
             return postSearch.create({
-                conditions: key,
+                conditions: thePassedKey,
                 posts: JSON.stringify(wholeBatches)
             });
         }); 
@@ -380,7 +383,7 @@ updateByID:function(req, res, next){
 
 
 getPostsByDistance: function(req, res, next){
-
+    console.log("getPostsByDistance is called");
     var latitude = req.body.latitude;
     var longitude = req.body.longitude;
     var selectedCity = req.body.city;
@@ -399,7 +402,9 @@ getPostsByDistance: function(req, res, next){
     var startingDate = req.body.startingDate;
     console.log("startingDate")
     console.log(startingDate)
-    var key = JSON.stringify(req.body);
+    var thePassedKey = JSON.stringify(req.body);
+    //var key = "latitude:"+latitude+";longitude:"+longitude+";selectedCity:"+selectedCity+";pricemin:"+pricemin+";pricemax:"+pricemax+";termmin:"+termmin+";termmax:"+termmax+";washroom:"+washroom+";den:"+den+";bedroom:"+bedroom+";parking:"+parking+";type:"+type+";startingDate:"+startingDate;
+
     var time;
 
         // Other Settings
@@ -463,7 +468,7 @@ getPostsByDistance: function(req, res, next){
 
         var postSearch = postSearchDAO.getSelf;
 
-        postSearch.findAll({where: {conditions: key}}).then(function(object){            
+        postSearch.findAll({where: {conditions: thePassedKey}}).then(function(object){            
             // case 1: the key exists
             if (object.length != 0){
                 console.log("conditions found");
@@ -521,11 +526,17 @@ getPostsByDistance: function(req, res, next){
                 }
             }
 
+            console.log("filterMap: ");
+            for (var key in filterMap){
+                console.log("key: " + key + ", " + filterMap[key]);
+            }
+            
             Posts.findAll({where: filterMap}).then(function(object){
                 var posts = [];
                 var i = 0;
                 checker = 0;
                 postsWithinDistance = [];
+                console.log("object.length: " + object.length);
                 if (object.length > 0){
                     while (object[i]){
                         post = object[i];
@@ -536,7 +547,8 @@ getPostsByDistance: function(req, res, next){
                         });
                         i ++;
                     }
-                    rankAllPostsByDistance(posts, req, latitude, longitude, posts.length, batch, key, next);
+
+                    rankAllPostsByDistance(posts, req, latitude, longitude, posts.length, batch, thePassedKey, next);
                 }
                 else{
                     req.posts = [];                
