@@ -25,7 +25,7 @@ var PostSearch = sequelize.define('PostSearch', {
 });
 
 PostSearch.hook('beforeValidate', function(PostSearch, options) {
-
+    console.log("calling PostSearch.hook")
     var currentTime = Math.floor(Date.now());
     console.log(currentTime);
     var fiveMinAgo = currentTime - 5*60*1000;

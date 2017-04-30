@@ -654,7 +654,14 @@ newPost:function(req, res, next){
         });
     }
 });
-  res.json({message : 'success', post: post.dataValues.id});
+    //delete records from PostSearches
+    var postSearch = postSearchDAO.getSelf;
+    postSearch.destroy({where: {}, truncate: true}).then(function (object) {
+        console.log("postSearch records are destroyed after new records are created");
+    });
+
+    res.json({message : 'success', post: post.dataValues.id});
+
 }).catch(function (error){
     console.log("FAILEDDDDDDDDDD");
     console.log(error);
