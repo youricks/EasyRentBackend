@@ -646,8 +646,12 @@ newPost:function(req, res, next){
         otherContact: req.body.otherContact
     })
 .then(function(post){
+  console.log("Post is created")
   User.findOne({where: {id: req.body.userId}}).then(function(object){
+	console.log("Looking for Poster")
     if (object){
+		console.log("Poster has been found")
+		console.log(object)
         object.sentPosts.push(post.id)
         object.updateAttributes({
             sentPosts: object.sentPosts
