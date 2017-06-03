@@ -49,3 +49,9 @@ for (var i in routes) app.use('/', routes[i]);
 // =============================================================================
 app.listen(port);
 console.log('Magic happens on port ' + port);
+
+// Ping server every 5 mins to prevent it from idling
+var http = require("http");
+setInterval(function() {
+    http.get("http://haoyizu.herokuapp.com");
+}, 300000); // every 5 minutes (300000)
