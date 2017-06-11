@@ -605,6 +605,64 @@ removePost: function(req, res, next){
     })      
 },
 
+updatePost:function(req, res, next){
+
+    var roomNumber = req.body.roomNumber.split(",");
+    console.log("wwwwww")
+    console.log(req.body.id)
+    console.log(req.body)
+    Posts.findOne({where: {id: req.body.id}}).then(function(selectedPost){
+        console.log("before if");
+        if (selectedPost){
+            console.log("in the if");
+            selectedPost.updateAttributes({
+                title: req.body.title,
+                userId: req.body.userId,
+                city: req.body.city,
+                price: req.body.price,
+                postDescription: req.body.postDescription,
+                type: req.body.type,
+                bedroomNumber: roomNumber[0][roomNumber[0].length-1] == "+" ? 10 : roomNumber[0][0],
+                livingroomNumber: roomNumber[1][roomNumber[1].length-1] == "+" ? 3 : roomNumber[1][0],
+                washroomNumber: roomNumber[2][roomNumber[2].length-1] == "+" ? 5 : roomNumber[2][0],
+                denNumber: roomNumber[3][roomNumber[3].length-1] == "+" ? 3 : roomNumber[3][0],
+                parking: req.body.parking,
+                size: req.body.size,
+                leaseTerm: req.body.leaseTerm,
+                address: req.body.address,
+                unit: req.body.unit,
+                startingDate: moment(req.body.startingDate).unix(),
+                endDate: moment(req.body.endDate).unix(),
+                occupation: req.body.occupation,
+                hasGym: req.body.hasGym,
+                hasBath: req.body.hasBath,
+                isPetAllowed: req.body.isPetAllowed,
+                isCloseSubway: req.body.isCloseSubway,
+                isSingleOnly: req.body.isSingleOnly,
+                isJointAllowed: req.body.isJointAllowed,
+                isFurnitureProvided: req.body.isFurnitureProvided,
+                gender: req.body.gender,
+                postCode: req.body.postCode,
+                latitude: req.body.latitude,
+                longitude: req.body.longitude,
+                images: req.body.images,
+                email: req.body.email,
+                phoneNumber: req.body.phoneNumber,
+                otherContact: req.body.otherContact
+            });
+            console.log("set req.post");
+            req.post = selectedPost;
+            req.message = "success";
+        }
+        else{
+            req.message = "failed";
+
+        }
+        console.log("before next");
+        next();
+    })
+},
+
 
 newPost:function(req, res, next){
     var roomNumber = req.body.roomNumber.split(",");

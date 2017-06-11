@@ -53,6 +53,12 @@ router.post('/post/new/', userDao.verifyUserToken, postDao.newPost, function(req
     console.log("Post Create.....");
     next();
 });
+router.post('/post/postUpdate/', userDao.verifyUserToken, postDao.updatePost, function(req, res, next){
+    console.log("Post Update.....");
+    res.json({message : req.message, posts: req.post});
+
+    next();
+});
 
 router.post('/posts/:batch', postDao.getPostsByDistance, function(req, res, next){
     console.log("distance retrieved");
