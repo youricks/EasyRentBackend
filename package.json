@@ -6,6 +6,7 @@
   "main": "server.js",
   "license": "Apache-2.0",
   "dependencies": {
+	"firebase-admin":"latest",
     "log4js":"latest",
 	"geopoint":"latest",
 	"geolib":"latest",

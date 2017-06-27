@@ -3,6 +3,17 @@ var pg = require('pg');
 const fs = require('fs');
 var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/)
 var applicationPassword = process.env.APP_PASSWORD
+
+/**
+    Initialize Firebase App
+**/
+var admin = require("firebase-admin");
+var serviceAccount = require("../serviceAccountKey.json");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://easyrent-dfe31.firebaseio.com"
+});
+
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize(match[5], match[1], match[2], {
     dialect:  'postgres',
@@ -106,6 +117,7 @@ module.exports = {
     })
   },
   like:function(req,res,next){
+    console.log("user id is" + req.params.userId);
     User.findOne({where: {id:req.params.userId}}).then(function(object){
       if (object){
         if (!object.favouritePosts.includes(parseInt(req.params.postId))){
@@ -150,35 +162,22 @@ module.exports = {
         }) 
     },
   verifyUserToken: function(req, res, next){
-	next();
-	return;
-    var https = require('https');
-    var accessToken = '1768240240094473|' + applicationPassword;
-    console.log(JSON.stringify(req.query.token));
-    var inputToken = req.query.token;
-    if (!inputToken){
+    console.log("Going to print token...")
+    console.log(req.query.token)
+	admin.auth().verifyIdToken(req.query.token)
+  		.then(function(decodedToken) {
+        // Token verification success
+    	var uid = decodedToken.uid;
+		console.log(uid);
+		console.log("IDENTITY VERIFIED")
+        next();
+  	}).catch(function(error) {
+    	// Handle error, which usually means verification failed
+        console.log(error)
+		console.log("HACKER??")
         res.status(403).send("Authentication Failed, please log in again");
         return;
-    }
-    var url = `https:\/\/graph.facebook.com/debug_token?input_token=${inputToken}&access_token=${accessToken}`
-    https.get(url, (response) => {
-      console.log('statusCode:', response.statusCode);
-      console.log('headers:', response.headers);
-      //response.setEncoding('utf8');
-      response.on('data', (d) => {
-        if ( JSON.parse(d.toString('utf8')).data.is_valid) {
-            next();
-        }
-        else {
-            res.status(403).send("Authentication Failed, please log in again");
-            return;
-        }
-      });
-    }).on('error', (e) => {
-      console.error(e);
-      res.status(403).send(e);
-      return;
-    });
+  	});
   },
     userLogIn: function(req, res, next){
         var combinedId = req.body.id;
@@ -311,10 +310,6 @@ module.exports = {
             console.log("before next");
             next();
         })
-        
- 
-    
-
     },    
 
   updateByName:function(req, res, next){
