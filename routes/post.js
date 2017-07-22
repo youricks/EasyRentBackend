@@ -33,6 +33,12 @@ router.get('/basicinfo/post/:PostID', postDao.getBasicPostInfo, function(req, re
     next();
 });
 
+// find basic info dictionary of post by PostID
+router.get('/basicinfodic/post/:PostID', postDao.getBasicPostInfoDic, function(req, res, next) {
+    res.json({message : 'success', post: req.post});
+    next();
+});
+
 // update post by PostID
 router.get('/post/update/:PostID/description=:description&duration=:duration&price=:price&starting_date=:starting_date&ending_date=:ending_date&allow_joint_rent=:allow_joint_rent&requirement=:requirement', postDao.updateByID, function(req, res, next) {
     res.json({message : 'success', post: req.post});

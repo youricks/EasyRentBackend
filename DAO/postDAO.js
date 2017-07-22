@@ -572,6 +572,20 @@ getBasicPostInfo: function(req, res, next){
         next();
     })         
 },
+getBasicPostInfoDic: function(req, res, next){
+    Posts.findOne({where: {id:req.params.PostID}}).then(function(object){
+        console.log(object)
+        if (object){
+            req.post={"id":object["id"], "address":object["address"], "price":object["price"], "bedroomNumber":object["bedroomNumber"], "washroomNumber":object["washroomNumber"], "denNumber":object["denNumber"], "createdAt":object["createdAt"], "title":object["title"], "images":object["images"], "userId":object["userId"]};
+        }
+        else{
+            console.log("Object is null");
+            req.post={"id":req.params.PostID, "address":"", "price":0, "bedroomNumber":0, "washroomNumber":0, "denNumber":0, "createdAt":"1994-11-24", "title":"已删除", "images":[], "userId":""};
+        }
+        next();
+    })         
+},
+
 removePost: function(req, res, next){
   console.log("The destroyed id: " + req.params.postId)
     Posts.destroy({
