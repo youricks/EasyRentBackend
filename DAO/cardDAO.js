@@ -21,28 +21,34 @@ var stripe = require("stripe")("sk_live_vFlGvmxllCwWvX8mS5kk3FOo");
 // Get the payment token ID submitted by the form:
 var token = ""; // Using Express
 
-// Charge the user's card:
-var charge = stripe.charges.create({
-  amount: 50,
-  currency: "cad",
-  description: "Example charge",
-  source: token,
-}, function(err, charge) {
-  // asynchronously called
-  if (err){
-    console.log("visa card error");
-    console.log(err);
+module.exports = {
+  purchase: function(req,res,next) {
+    console.log(req.body.id)
+    console.log(req.body.token)
+    console.log(req.body.amount)
+    // Charge the user's card:
+    var charge = stripe.charges.create({
+      amount: 1,
+      currency: "cad",
+      description: "Ticket Charge",
+      source: req.body.token,
+    }, function(err, charge) {
+      // asynchronously called
+      if (err){
+        console.log("visa card error");
+        console.log(err);
+      }
+      else{
+        console.log("no visa card error");
+      }
+      if (charge){
+        console.log("charge");
+        console.log(charge);
+      }
+      else{
+        console.log("opps, no charge");
+      }
+    });
+    next()
   }
-  else{
-    console.log("no visa card error");
-  }
-  if (charge){
-    console.log("charge");
-    console.log(charge);
-  }
-  else{
-    console.log("opps, no charge");
-  }
-});
-
-
+}
