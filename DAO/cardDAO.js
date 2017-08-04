@@ -25,6 +25,10 @@ var Purchase = sequelize.define('Purchase', {
     amount: {
         type: Sequelize.INTEGER,
         allowNull: false
+    },
+    wechat: {
+        type: Sequelize.STRING,
+        allowNull: false
     }
     }, {
       freezeTableName: true // Model tableName will be the same as the model name
@@ -43,9 +47,10 @@ module.exports = {
     console.log(req.body.id)
     console.log(req.body.token)
     console.log(req.body.amount)
+    console.log(req.body.wechat)
 
     // Check if any error in parameter. Will not charge if anything missing
-    if (!req.body.id  || !req.body.amount) {
+    if (!req.body.id  || !req.body.amount || !req.body.wechat) {
         console.log("Invalid purchase request")
         res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
         return;
@@ -73,7 +78,8 @@ module.exports = {
         // Create Puchase Record
         Purchase.create({
             userId: req.body.id,
-            amount: req.body.amount
+            amount: req.body.amount,
+            wechat: req.body.wechat
         }).then(function(newUser){
             console.log("Purchase Success");
             next();
