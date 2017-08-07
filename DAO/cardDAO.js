@@ -37,13 +37,16 @@ var Purchase = sequelize.define('Purchase', {
     email: {
         type: Sequelize.STRING,
         allowNull: false
+    },
+    isValid: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
     }
     }, {
       freezeTableName: true // Model tableName will be the same as the model name
 });
 
 Purchase.sync()
-
 
 // Token is created using Stripe.js or Checkout!
 // Get the payment token ID submitted by the form:
@@ -107,12 +110,12 @@ module.exports = {
 
         for (var count=0; count<req.body.ticketNumber; count++){
           // Create Puchase Record
-          var thisNum = count
           Purchase.create({
               userId: req.body.id,
               amount: TICKET_PRICE,
               wechat: req.body.wechat,
-              email: req.body.email
+              email: req.body.email,
+              isValid: true
           }).then(function(newPurchase){
               console.log("Purchase Success");
               console.log(newPurchase["dataValues"]);
@@ -120,15 +123,15 @@ module.exports = {
               console.log("qrString: " + generatedQRString)
               
               //create image
-              var path = 'ticket_record_' + thisNum + '.png'
-              images[thisNum] = 'ticket_record_' + thisNum + '.png'
+              var imageCount = images.length
+              var path = 'ticket_record_' + imageCount + '.png'
+              images[imageCount] = 'ticket_record_' + imageCount + '.png'
               var fileType = 'png'
               var qr_png = qr.image(generatedQRString, { type: fileType});
               qr_png.pipe(fs.createWriteStream(path));
 
-              theAttachment = {filename: images[thisNum], path: images[thisNum]}
-              attachment[thisNum] = theAttachment
-
+              theAttachment = {filename: images[imageCount], path: images[imageCount]}
+              attachment[imageCount] = theAttachment
 
               Purchase.findOne({where: {id:newPurchase["dataValues"]["id"]}}).then(function(object){
                   console.log(object)
@@ -139,10 +142,10 @@ module.exports = {
                   }
               })     
 
-              console.log("thisNum: " + thisNum)
+              console.log("imageCount: " + imageCount)
               console.log("req.body.ticketNumber: " + req.body.ticketNumber)
               // send email
-              if (thisNum == req.body.ticketNumber-1){
+              if (imageCount == req.body.ticketNumber-1){
                   console.log("To send the email now")
                   var mailOptions = {
                       from: 'easyrent_2017@163.com', // 发件地址
@@ -161,26 +164,30 @@ module.exports = {
                           return console.log(error);
                       }
                       console.log('Message sent: ' + info.response);
-
-                  });
-
-                  try{
-                      for (var num=0; num<images.length; num++){
-                          fs.unlinkSync(images[num])
+                      try{
+                          for (var num=0; num<images.length; num++){
+                              fs.unlinkSync(images[num])
+                          }
+                      }catch(e){
+                         // Handle error
+                         console.log('png file does not exist')
                       }
-                  }catch(e){
-                     // Handle error
-                     console.log('png file does not exist')
-                  }
+                  });
+                  
               }
-
-
-
                
           }).catch(function (error){
               console.log("FAILEDDDDDDDDDD");
               req.user = error
               console.log("Charged but error happened")
+              try{
+                  for (var num=0; num<images.length; num++){
+                      fs.unlinkSync(images[num])
+                  }
+              }catch(e){
+                 // Handle error
+                 console.log('png file does not exist')
+              }
               console.log(req.body.id)
               console.log(req.body.amount)
               console.log(req.body.token)
