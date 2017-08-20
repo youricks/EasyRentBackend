@@ -151,12 +151,23 @@ function sendEmail(currentTicketInfo, emailAddress){
                     console.log(streamDoneCount)
                     if (overLayCount == currentTicketInfo.length){
                         console.log("To send the email now")
+                        var code = ""
+                        for (i in currentTicketInfo) {
+                            if (currentTicketInfo) {
+                                code += (currentTicketInfo[i].ticketCode + "\n")
+                            }
+                        }
                         var mailOptions = {
                             from: 'easyrent_2017@163.com', // 发件地址
                             to: emailAddress, // 收件列表
                             subject: '门票购票凭证', // 标题
                             //text和html两者只支持一种
-                            html: "<h2>您好，感谢您的购票！</h2><h3>门票二维码在附件</h3>",
+                            html: `<h2>恭喜您成功购得2017年9月15日将在Toronto Event Centre 举办的 MEET EDC IN TORONTO TICKET 1张。</h2>
+                            <p>TICKET TYPE： EARLY BIRD.</p>
+                            <p>TICKET NUMBER： ` + code + `</p>
+                            <p>请于演出开始前一周到指定取票点取实体票， 线下取票点请关注CSSA， MAPLE CAR， TK， TAIYA AUTO公众号。 </p>
+
+                            `,
                             attachments: attachment
                         }
                         console.log("before sending email")
