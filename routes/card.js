@@ -6,7 +6,7 @@ var PRICE = 69
 var TAX = 1.13
 router.post('/ticket/purchase',
 	function(req, res, next) {
-    	req.body.amount = req.body.amount * 100 * PRICE * TAX
+    	req.body.amount = (req.body.amount * 100 * PRICE * TAX).toFixed(2)    
     	next()
 	}, 
 	cardDAO.purchase, 
