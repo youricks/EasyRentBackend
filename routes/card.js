@@ -19,8 +19,4 @@ router.get('/ticket/verify/:id',
     	res.json({message : "Purchase Success"});
 });
 
-router.get('/ticket/price', function(req, res, next) {
-	res.end("65");
-});
-
 module.exports = router;
