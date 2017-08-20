@@ -29,7 +29,6 @@ console.log = function(info){logger.info(info)}
 // key 3
 // AIzaSyAgKyx94f3Fww8E2K2-l9MP4LZh56RHWBE
 
-
 const fs = require('fs');
 
 var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/)
