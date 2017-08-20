@@ -44,8 +44,7 @@
     "require-dir": "*",
     "sequelizer": "*",
     "webpack": "^1.13.1",
-    "stripe": "*",
-    "qrcode": "*"
+    "stripe": "*"
   },
   "devDependencies": {
     "webpack-dev-middleware": "^1.6.1"

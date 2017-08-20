@@ -2,7 +2,6 @@ var pg = require('pg');
 const fs = require('fs');
 var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/)
 var applicationPassword = process.env.APP_PASSWORD
-var QRCode = require('qrcode')
 
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize(match[5], match[1], match[2], {
@@ -30,13 +29,6 @@ var Purchase = sequelize.define('Purchase', {
     wechat: {
         type: Sequelize.STRING,
         allowNull: false
-    },
-    qrString: {
-        type: Sequelize.STRING
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: false
     }
     }, {
       freezeTableName: true // Model tableName will be the same as the model name
@@ -49,7 +41,6 @@ var stripe = require("stripe")("sk_live_vFlGvmxllCwWvX8mS5kk3FOo");
 // Token is created using Stripe.js or Checkout!
 // Get the payment token ID submitted by the form:
 var token = ""; // Using Express
-var TICKET_PRICE = 65;
 
 module.exports = {
   purchase: function(req,res,next) {
@@ -57,16 +48,14 @@ module.exports = {
     console.log(req.body.token)
     console.log(req.body.amount)
     console.log(req.body.wechat)
-    console.log(req.body.ticketNumber)
-    console.log(req.body.email)
 
     // Check if any error in parameter. Will not charge if anything missing
-    if (!req.body.id  || !req.body.amount || !req.body.wechat || !req.body.ticketNumber || !req.body.email) {
+    if (!req.body.id  || !req.body.amount || !req.body.wechat) {
         console.log("Invalid purchase request")
         res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
         return;
     }
-    /**/
+
     // Charge the user's card:
     var charge = stripe.charges.create({
       amount: req.body.amount,
@@ -85,52 +74,31 @@ module.exports = {
       if (charge){
         console.log("charge");
         console.log(charge);
-        for (var count=0; count<req.body.ticketNumber; count++){
-          // Create Puchase Record
-          Purchase.create({
-              userId: req.body.id,
-              amount: TICKET_PRICE,
-              wechat: req.body.wechat,
-              email: req.body.email
-          }).then(function(newPurchase){
-              console.log("Purchase Success");
-              console.log(newPurchase["dataValues"]);
-              var qr = "" + newPurchase["dataValues"]["id"] +  "_" + newPurchase["dataValues"]["email"] + "_" + newPurchase["dataValues"]["createdAt"]
-              console.log("qrString: " + qr)
-              
-              Purchase.findOne({where: {id:newPurchase["dataValues"]["id"]}}).then(function(object){
-                  console.log(object)
-                  if (object){
-                      object.updateAttributes({
-                          qrString: qr
-                      });
-                  }
-              })     
 
-              QRCode.toDataURL(qr, function (err, url) {
-                console.log(url)
-                // send email here
-              })
-               
-          }).catch(function (error){
-              console.log("FAILEDDDDDDDDDD");
-              req.user = error
-              console.log("Charged but error happened")
-              console.log(req.body.id)
-              console.log(req.body.amount)
-              console.log(req.body.token)
-              console.log(error)
-              res.status(500).send(error);
-          }); 
-        }
-        next()
-        
+        // Create Puchase Record
+        Purchase.create({
+            userId: req.body.id,
+            amount: req.body.amount,
+            wechat: req.body.wechat
+        }).then(function(newUser){
+            console.log("Purchase Success");
+            next();
+        }).catch(function (error){
+            console.log("FAILEDDDDDDDDDD");
+            req.user = error
+            console.log("Charged but error happened")
+            console.log(req.body.id)
+            console.log(req.body.amount)
+            console.log(req.body.token)
+            console.log(error)
+            res.status(500).send(error);
+        }); 
       }
       else{
         console.log("opps, no charge");
         res.status(500).send(err);
       }
     });
-
+    
   }
 }
