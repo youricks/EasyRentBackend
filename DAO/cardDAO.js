@@ -27,68 +27,26 @@ var Purchase = sequelize.define('Purchase', {
         type: Sequelize.INTEGER,
         allowNull: false
     },
-    ticketNumber: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
     wechat: {
         type: Sequelize.STRING,
         allowNull: false
-    }, 
+    },
+    qrString: {
+        type: Sequelize.STRING
+    },
     email: {
         type: Sequelize.STRING,
-        allowNull: false
-    }
-    }, {
-      freezeTableName: true // Model tableName will be the same as the model name
-});
-
-
-var Ticket = sequelize.define('Ticket', {
-    code: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-    },
-    price: {
-        type: Sequelize.INTEGER,
         allowNull: false
     },
     isValid: {
         type: Sequelize.BOOLEAN,
         allowNull: false
-    },
-    isSold: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false
     }
     }, {
       freezeTableName: true // Model tableName will be the same as the model name
 });
 
-
 Purchase.sync()
-Ticket.sync()
-//Ticket.drop()
-
-/*
-// tickets creation
-for (var ticketOrder=1; ticketOrder<=5000; ticketOrder++){
-
-    Ticket.create({
-        code: '' + ticketOrder + '_' + Math.random().toString(36).substr(2),
-        price: 65,
-        isValid: true,
-        isSold: false
-    }).then(function(newTicket){
-         console.log("new ticket is created")
-    }).catch(function (error){
-        console.log("failed to create ticket");
-    });
-}
-*/
-
-
 
 // Token is created using Stripe.js or Checkout!
 // Get the payment token ID submitted by the form:
@@ -111,82 +69,6 @@ var transporter = nodemailer.createTransport({
 
     }
 });
-
-function sendEmail(currentTicketInfo, emailAddress){
-    var images = []
-    var attachment = []
-
-    for (var imageCount=0; imageCount<currentTicketInfo.length; imageCount++){
-        //create image
-        var path = 'ticket_record_' + imageCount + '.png'
-        images[imageCount] = 'ticket_record_' + imageCount + '.png'
-        var fileType = 'png'
-        var qr_png = qr.image(currentTicketInfo[imageCount].ticketCode, { type: fileType});
-        qr_png.pipe(fs.createWriteStream(path));
-        theAttachment = {filename: images[imageCount], path: images[imageCount]}
-        attachment[imageCount] = theAttachment
-    }
-
-    console.log("To send the email now")
-    var mailOptions = {
-        from: 'easyrent_2017@163.com', // 发件地址
-        to: emailAddress, // 收件列表
-        subject: '门票购票凭证', // 标题
-        //text和html两者只支持一种
-        html: "<h2>您好，感谢您的购票！</h2><h3>门票二维码在附件</h3>",
-        attachments: attachment
-    }
-    console.log("before sending email")
-
-    // send mail with defined transport object
-    transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-            console.log("email error")
-            return console.log(error);
-        }
-        console.log('Message sent: ' + info.response);
-        try{
-            for (var num=0; num<images.length; num++){
-                fs.unlinkSync(images[num])
-            }
-        }catch(e){
-            // Handle error
-            console.log('png file does not exist')
-        }
-    });
-
-}
-
-function getSomeTickets(currentTicketNumbers, targetTicketNumbers, currentTicketInfo, emailAddress){
-    console.log("currentTicketInfo length: " + currentTicketInfo.length)
-    if (currentTicketNumbers == targetTicketNumbers){
-        sendEmail(currentTicketInfo, emailAddress)
-
-        console.log("final return")
-        return currentTicketInfo
-    }
-    else{
-        Ticket.findOne({where: {isSold:false, id:{lte: 450}}}).then(function(ticket){
-            if (ticket){
-                console.log("ticket.id: " + ticket.id)
-                ticket.updateAttributes({
-                    isSold:true
-                }).then(function(updated){
-                    thisTicketInfo = []
-                    thisTicketInfo["ticketId"] = ticket.id
-                    thisTicketInfo["ticketCode"] = ticket.code
-                    currentTicketInfo.push(thisTicketInfo)
-                    currentTicketNumbers += 1
-                    return getSomeTickets(currentTicketNumbers, targetTicketNumbers, currentTicketInfo, emailAddress)                    
-                })
-            }
-            else{
-                return currentTicketInfo
-            }
-
-        })
-    }
-}
 
 module.exports = {
   purchase: function(req,res,next) {
@@ -223,39 +105,97 @@ module.exports = {
         console.log("charge");
         console.log(charge);
         delete this line */ 
+        var images = []
+        var attachment = []
+
+        for (var count=0; count<req.body.ticketNumber; count++){
+          // Create Puchase Record
+          Purchase.create({
+              userId: req.body.id,
+              amount: TICKET_PRICE,
+              wechat: req.body.wechat,
+              email: req.body.email,
+              isValid: true
+          }).then(function(newPurchase){
+              console.log("Purchase Success");
+              console.log(newPurchase["dataValues"]);
+              var generatedQRString = "" + newPurchase["dataValues"]["id"] +  "_" + newPurchase["dataValues"]["email"] + "_" + newPurchase["dataValues"]["createdAt"]
+              console.log("qrString: " + generatedQRString)
+              
+              //create image
+              var imageCount = images.length
+              var path = 'ticket_record_' + imageCount + '.png'
+              images[imageCount] = 'ticket_record_' + imageCount + '.png'
+              var fileType = 'png'
+              var qr_png = qr.image(generatedQRString, { type: fileType});
+              qr_png.pipe(fs.createWriteStream(path));
+
+              theAttachment = {filename: images[imageCount], path: images[imageCount]}
+              attachment[imageCount] = theAttachment
+
+              Purchase.findOne({where: {id:newPurchase["dataValues"]["id"]}}).then(function(object){
+                  console.log(object)
+                  if (object){
+                      object.updateAttributes({
+                          qrString: generatedQRString
+                      });
+                  }
+              })     
+
+              console.log("imageCount: " + imageCount)
+              console.log("req.body.ticketNumber: " + req.body.ticketNumber)
+              // send email
+              if (imageCount == req.body.ticketNumber-1){
+                  console.log("To send the email now")
+                  var mailOptions = {
+                      from: 'easyrent_2017@163.com', // 发件地址
+                      to: req.body.email, // 收件列表
+                      subject: 'EasyRent购票凭证', // 标题
+                      //text和html两者只支持一种
+                      html: "<h2>购票凭证</h2><h3>二维码在附件</h3>",
+                      attachments: attachment
+                  }
+                  console.log("before sending email")
+
+                  // send mail with defined transport object
+                  transporter.sendMail(mailOptions, function(error, info){
+                      if(error){
+                          console.log("email error")
+                          return console.log(error);
+                      }
+                      console.log('Message sent: ' + info.response);
+                      try{
+                          for (var num=0; num<images.length; num++){
+                              fs.unlinkSync(images[num])
+                          }
+                      }catch(e){
+                         // Handle error
+                         console.log('png file does not exist')
+                      }
+                  });
+                  
+              }
+               
+          }).catch(function (error){
+              console.log("FAILEDDDDDDDDDD");
+              req.user = error
+              console.log("Charged but error happened")
+              try{
+                  for (var num=0; num<images.length; num++){
+                      fs.unlinkSync(images[num])
+                  }
+              }catch(e){
+                 // Handle error
+                 console.log('png file does not exist')
+              }
+              console.log(req.body.id)
+              console.log(req.body.amount)
+              console.log(req.body.token)
+              console.log(error)
+              res.status(500).send(error);
+          }); 
+        }
         
-
-        Purchase.create({
-            userId: req.body.id,
-            amount: req.body.amount,
-            wechat: req.body.wechat,
-            email: req.body.email,
-            ticketNumber: req.body.ticketNumber
-        }).then(function(newPurchase){
-             console.log("purchase succeed")
-             // retrieve the ticket ids
-             var retrievedTicketInfo = getSomeTickets(0, req.body.ticketNumber, [], req.body.email)
-
-
-
-        }).catch(function (error){
-            console.log("FAILEDDDDDDDDDD");
-            req.user = error
-            console.log("Charged but error happened")
-            try{
-                for (var num=0; num<images.length; num++){
-                    fs.unlinkSync(images[num])
-                }
-            }catch(e){
-               // Handle error
-               console.log('png file does not exist')
-            }
-            console.log(req.body.id)
-            console.log(req.body.amount)
-            console.log(req.body.token)
-            console.log(error)
-            res.status(500).send(error);
-        }); 
         next()
         
         /* delete this line
