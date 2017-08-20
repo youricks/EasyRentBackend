@@ -15,11 +15,11 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
   }
 });
 
-var stripe = require("stripe")("sk_live_vFlGvmxllCwWvX8mS5kk3FOo");
+var stripe = require("stripe")("sk_test_HGhq1NA3hvU6v8YWpIeTq3IW");
 
 // Token is created using Stripe.js or Checkout!
 // Get the payment token ID submitted by the form:
-var token = ""; // Using Express
+var token = "tok_1Am2MaIrjDNfJ9hfDIU5FJRJ"; // Using Express
 
 // Charge the user's card:
 var charge = stripe.charges.create({
