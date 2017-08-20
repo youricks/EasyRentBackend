@@ -1,6 +1,3 @@
-//const HOST_ADDRESS = "https://haoyizu.herokuapp.com/"
-const HOST_ADDRESS = "http://192.168.31.53:5432/" 
-
 var pg = require('pg');
 const fs = require('fs');
 var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/)
@@ -96,8 +93,13 @@ for (var ticketOrder=1; ticketOrder<=5000; ticketOrder++){
 // Token is created using Stripe.js or Checkout!
 // Get the payment token ID submitted by the form:
 var token = ""; // Using Express
+var TICKET_PRICE = 65;
 var authInfo = fs.readFileSync('authInfo.txt').toString().split('\n');
 var qr = require('qr-image')
+
+console.log(authInfo[0])
+console.log(authInfo[1])
+
 
 var transporter = nodemailer.createTransport({
     host: "smtp.163.com",
@@ -119,7 +121,7 @@ function sendEmail(currentTicketInfo, emailAddress){
         var path = 'ticket_record_' + imageCount + '.png'
         images[imageCount] = 'ticket_record_' + imageCount + '.png'
         var fileType = 'png'
-        var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType});
+        var qr_png = qr.image(currentTicketInfo[imageCount].ticketCode, { type: fileType});
         qr_png.pipe(fs.createWriteStream(path));
         theAttachment = {filename: images[imageCount], path: images[imageCount]}
         attachment[imageCount] = theAttachment
@@ -187,98 +189,83 @@ function getSomeTickets(currentTicketNumbers, targetTicketNumbers, currentTicket
 }
 
 module.exports = {
-    purchase: function(req,res,next) {
-        console.log(req.body.id)
-        console.log(req.body.token)
-        console.log(req.body.amount)
-        console.log(req.body.wechat)
-        console.log(req.body.ticketNumber)
-        console.log(req.body.email)
+  purchase: function(req,res,next) {
+    console.log(req.body.id)
+    console.log(req.body.token)
+    console.log(req.body.amount)
+    console.log(req.body.wechat)
+    console.log(req.body.ticketNumber)
+    console.log(req.body.email)
 
-        // Check if any error in parameter. Will not charge if anything missing
-        if (!req.body.id  || !req.body.amount || !req.body.wechat || !req.body.ticketNumber || !req.body.email) {
-            console.log("Invalid purchase request")
-            res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
-            return;
-        }
-        /* delete this line
-        // Charge the user's card:
-        var charge = stripe.charges.create({
-          amount: req.body.amount,
-          currency: "cad",
-          description: "Ticket Charge",
-          source: req.body.token,
-        }, function(err, charge) {
-          // asynchronously called
-          if (err){
-            console.log("visa card error");
-            console.log(err);
-          }
-          else{
-            console.log("no visa card error");
-          }
-          if (charge){
-            console.log("charge");
-            console.log(charge);
-            delete this line */ 
-            
-
-            Purchase.create({
-                userId: req.body.id,
-                amount: req.body.amount,
-                wechat: req.body.wechat,
-                email: req.body.email,
-                ticketNumber: req.body.ticketNumber
-            }).then(function(newPurchase){
-                 console.log("purchase succeed")
-                 // retrieve the ticket ids
-                 var retrievedTicketInfo = getSomeTickets(0, req.body.ticketNumber, [], req.body.email)
-            }).catch(function (error){
-                console.log("FAILEDDDDDDDDDD");
-                req.user = error
-                console.log("Charged but error happened")
-                try{
-                    for (var num=0; num<images.length; num++){
-                        fs.unlinkSync(images[num])
-                    }
-                }catch(e){
-                   // Handle error
-                   console.log('png file does not exist')
-                }
-                console.log(req.body.id)
-                console.log(req.body.amount)
-                console.log(req.body.token)
-                console.log(error)
-                res.status(500).send(error);
-            }); 
-            next()
-            
-            /* delete this line
-          }
-          else{
-            console.log("opps, no charge");
-            res.status(500).send(err);
-          }
-        });
-        delete this line*/  
-
-    },
-    verify: function(req,res,next) {
-        var ticketId = req.params.id
-        console.log(ticketId)
-        console.log("caonima")
-        Ticket.findOne({where: {isValid:true, code:ticketId}}).then(function(ticket){
-            if (ticket){ 
-                if (ticket.isSold) {
-                    res.end("Tickt is valid")
-                }
-                else {
-                    res.end("Ticket is valid but not sold")
-                }
-            }
-            else {
-                res.end("Ticket is not valid")
-            }
-        })
+    // Check if any error in parameter. Will not charge if anything missing
+    if (!req.body.id  || !req.body.amount || !req.body.wechat || !req.body.ticketNumber || !req.body.email) {
+        console.log("Invalid purchase request")
+        res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
+        return;
     }
+    /* delete this line
+    // Charge the user's card:
+    var charge = stripe.charges.create({
+      amount: req.body.amount,
+      currency: "cad",
+      description: "Ticket Charge",
+      source: req.body.token,
+    }, function(err, charge) {
+      // asynchronously called
+      if (err){
+        console.log("visa card error");
+        console.log(err);
+      }
+      else{
+        console.log("no visa card error");
+      }
+      if (charge){
+        console.log("charge");
+        console.log(charge);
+        delete this line */ 
+        
+
+        Purchase.create({
+            userId: req.body.id,
+            amount: req.body.amount,
+            wechat: req.body.wechat,
+            email: req.body.email,
+            ticketNumber: req.body.ticketNumber
+        }).then(function(newPurchase){
+             console.log("purchase succeed")
+             // retrieve the ticket ids
+             var retrievedTicketInfo = getSomeTickets(0, req.body.ticketNumber, [], req.body.email)
+
+
+
+        }).catch(function (error){
+            console.log("FAILEDDDDDDDDDD");
+            req.user = error
+            console.log("Charged but error happened")
+            try{
+                for (var num=0; num<images.length; num++){
+                    fs.unlinkSync(images[num])
+                }
+            }catch(e){
+               // Handle error
+               console.log('png file does not exist')
+            }
+            console.log(req.body.id)
+            console.log(req.body.amount)
+            console.log(req.body.token)
+            console.log(error)
+            res.status(500).send(error);
+        }); 
+        next()
+        
+        /* delete this line
+      }
+      else{
+        console.log("opps, no charge");
+        res.status(500).send(err);
+      }
+    });
+    delete this line*/  
+
+  }
 }
