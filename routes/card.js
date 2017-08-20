@@ -2,11 +2,10 @@ var express  = require('express');
 var router = express.Router();
 
 var cardDAO = require('../DAO/cardDAO.js');
-var PRICE = 69
-var TAX = 1.13
+
 router.post('/ticket/purchase',
 	function(req, res, next) {
-    	req.body.amount = req.body.amount * 100 * PRICE * TAX
+    	req.body.amount = req.body.amount * 50
     	next()
 	}, 
 	cardDAO.purchase, 
@@ -21,7 +20,7 @@ router.get('/ticket/verify/:id',
 });
 
 router.get('/ticket/price', function(req, res, next) {
-	res.end("69");
+	res.end("65");
 });
 
 module.exports = router;
