@@ -1,6 +1,5 @@
 //const HOST_ADDRESS = "https://haoyizu.herokuapp.com/"
 const HOST_ADDRESS = "http://192.168.31.53:5432/" 
-const sharp = require("sharp");
 
 var pg = require('pg');
 const fs = require('fs');
@@ -113,29 +112,16 @@ var transporter = nodemailer.createTransport({
 
 function sendEmail(currentTicketInfo, emailAddress){
     var images = []
-    var qrCodes = []
     var attachment = []
 
     for (var imageCount=0; imageCount<currentTicketInfo.length; imageCount++){
         //create image
         var path = 'ticket_record_' + imageCount + '.png'
-        const ticketName = "Ticket" + imageCount + ".jpg"
-        images[imageCount] = ticketName
-        qrCodes[imageCount] = path
+        images[imageCount] = 'ticket_record_' + imageCount + '.png'
         var fileType = 'png'
         var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType});
-        var stream = qr_png.pipe(fs.createWriteStream(path));
-        stream.on('finish', function(){
-            sharp("ticket_background.png").overlayWith(path, { top: 667, left: 341 }).toFile(ticketName, function(err, info) {
-                // output.dzi is the Deep Zoom XML definition
-                // output_files contains 512x512 tiles grouped by zoom level
-                console.log("error when exporting png?")
-                console.log(err)
-                console.log(info)
-            });
-        })
-        
-        theAttachment = {filename: ticketName, path: ticketName}
+        qr_png.pipe(fs.createWriteStream(path));
+        theAttachment = {filename: images[imageCount], path: images[imageCount]}
         attachment[imageCount] = theAttachment
     }
 
@@ -160,7 +146,6 @@ function sendEmail(currentTicketInfo, emailAddress){
         try{
             for (var num=0; num<images.length; num++){
                 fs.unlinkSync(images[num])
-                fs.unlinkSync(qrCodes[num])
             }
         }catch(e){
             // Handle error
