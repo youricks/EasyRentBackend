@@ -116,6 +116,7 @@ function sendEmail(currentTicketInfo, emailAddress){
     var qrCodes = []
     var attachment = []
     streamDoneCount = 0
+    overLayCount = 0
 
     for (var imageCount=0; imageCount<currentTicketInfo.length; imageCount++){
         //create image
@@ -131,19 +132,22 @@ function sendEmail(currentTicketInfo, emailAddress){
         attachment[imageCount] = theAttachment
 
         stream.on('finish', function(){
-            sharp("ticket_background.png").overlayWith(path, { top: 667, left: 341 }).toFile(ticketName, function(err, info) {
+            var source = currentTicketInfo[streamDoneCount]["ticketId"] + '_ticket_record_' + streamDoneCount + '.png'
+            var target = currentTicketInfo[streamDoneCount]["ticketId"] + "_Ticket" + streamDoneCount + ".jpg"
+            streamDoneCount += 1
+            sharp("ticket_background.png").overlayWith(source, { top: 667, left: 341 }).toFile(target, function(err, info) {
                 // output.dzi is the Deep Zoom XML definition
                 // output_files contains 512x512 tiles grouped by zoom level
+                overLayCount += 1
                 console.log("error when exporting png?")
                 if (err){
                     console.log(err)
                 }
                 else{
-                    streamDoneCount += 1
                     console.log(info)
                     console.log(currentTicketInfo.length)
                     console.log(streamDoneCount)
-                    if (streamDoneCount == currentTicketInfo.length){
+                    if (overLayCount == currentTicketInfo.length){
                         console.log("To send the email now")
                         var mailOptions = {
                             from: 'easyrent_2017@163.com', // 发件地址
