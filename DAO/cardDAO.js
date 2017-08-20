@@ -230,7 +230,7 @@ module.exports = {
             res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
             return;
         }
-        /* delete this line*/
+        /* delete this line
         // Charge the user's card:
         var charge = stripe.charges.create({
           amount: req.body.amount,
@@ -249,7 +249,7 @@ module.exports = {
           if (charge){
             console.log("charge");
             console.log(charge);
-            /*delete this line */ 
+            delete this line */ 
             
 
             Purchase.create({
@@ -282,14 +282,14 @@ module.exports = {
             }); 
             next()
             
-            /* delete this line */
+            /* delete this line
           }
           else{
             console.log("opps, no charge");
             res.status(500).send(err);
           }
         });
-        /* delete this line*/  
+        delete this line*/  
 
     },
     verify: function(req,res,next) {
