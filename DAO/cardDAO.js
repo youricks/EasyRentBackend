@@ -20,7 +20,7 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
   }
 });
 var nodemailer = require('nodemailer')
-var stripe = require("stripe")("sk_live_vFlGvmxllCwWvX8mS5kk3FOo")
+var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
