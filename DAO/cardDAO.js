@@ -54,9 +54,9 @@ var Ticket = sequelize.define('Ticket', {
         allowNull: false,
         unique: true
     },
-    price: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+    email: {
+        type: Sequelize.STRING,
+        allowNull: true
     },
     isValid: {
         type: Sequelize.BOOLEAN,
@@ -77,11 +77,11 @@ Ticket.sync()
 
 /*
 // tickets creation
-for (var ticketOrder=1; ticketOrder<=5000; ticketOrder++){
+for (var ticketOrder=1; ticketOrder<=3500; ticketOrder++){
 
     Ticket.create({
         code: '' + ticketOrder + '_' + Math.random().toString(36).substr(2),
-        price: 65,
+        email: "",
         isValid: true,
         isSold: false
     }).then(function(newTicket){
@@ -115,58 +115,71 @@ function sendEmail(currentTicketInfo, emailAddress){
     var images = []
     var qrCodes = []
     var attachment = []
+    streamDoneCount = 0
 
     for (var imageCount=0; imageCount<currentTicketInfo.length; imageCount++){
         //create image
-        var path = 'ticket_record_' + imageCount + '.png'
-        const ticketName = "Ticket" + imageCount + ".jpg"
+        var path = currentTicketInfo[imageCount]["ticketId"] + '_ticket_record_' + imageCount + '.png'
+        const ticketName = currentTicketInfo[imageCount]["ticketId"] + "_Ticket" + imageCount + ".jpg"
         images[imageCount] = ticketName
         qrCodes[imageCount] = path
         var fileType = 'png'
-        var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType});
+        var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketId, { type: fileType});
         var stream = qr_png.pipe(fs.createWriteStream(path));
+
+        theAttachment = {filename: ticketName, path: ticketName}
+        attachment[imageCount] = theAttachment
+
         stream.on('finish', function(){
             sharp("ticket_background.png").overlayWith(path, { top: 667, left: 341 }).toFile(ticketName, function(err, info) {
                 // output.dzi is the Deep Zoom XML definition
                 // output_files contains 512x512 tiles grouped by zoom level
                 console.log("error when exporting png?")
-                console.log(err)
-                console.log(info)
+                if (err){
+                    console.log(err)
+                }
+                else{
+                    streamDoneCount += 1
+                    console.log(info)
+                    console.log(currentTicketInfo.length)
+                    console.log(streamDoneCount)
+                    if (streamDoneCount == currentTicketInfo.length){
+                        console.log("To send the email now")
+                        var mailOptions = {
+                            from: 'easyrent_2017@163.com', // 发件地址
+                            to: emailAddress, // 收件列表
+                            subject: '门票购票凭证', // 标题
+                            //text和html两者只支持一种
+                            html: "<h2>您好，感谢您的购票！</h2><h3>门票二维码在附件</h3>",
+                            attachments: attachment
+                        }
+                        console.log("before sending email")
+
+                        // send mail with defined transport object
+                        transporter.sendMail(mailOptions, function(error, info){
+                            if(error){
+                                console.log("email error")
+                                return console.log(error);
+                            }
+                            console.log('Message sent: ' + info.response);
+                            try{
+                                for (var num=0; num<images.length; num++){
+                                    fs.unlinkSync(images[num])
+                                    fs.unlinkSync(qrCodes[num])
+                                }
+                            }catch(e){
+                                // Handle error
+                                console.log('png file does not exist')
+                            }
+                        });
+                    }
+                }
+                
             });
         })
-        
-        theAttachment = {filename: ticketName, path: ticketName}
-        attachment[imageCount] = theAttachment
     }
 
-    console.log("To send the email now")
-    var mailOptions = {
-        from: 'easyrent_2017@163.com', // 发件地址
-        to: emailAddress, // 收件列表
-        subject: '门票购票凭证', // 标题
-        //text和html两者只支持一种
-        html: "<h2>您好，感谢您的购票！</h2><h3>门票二维码在附件</h3>",
-        attachments: attachment
-    }
-    console.log("before sending email")
 
-    // send mail with defined transport object
-    transporter.sendMail(mailOptions, function(error, info){
-        if(error){
-            console.log("email error")
-            return console.log(error);
-        }
-        console.log('Message sent: ' + info.response);
-        try{
-            for (var num=0; num<images.length; num++){
-                fs.unlinkSync(images[num])
-                fs.unlinkSync(qrCodes[num])
-            }
-        }catch(e){
-            // Handle error
-            console.log('png file does not exist')
-        }
-    });
 
 }
 
@@ -179,11 +192,12 @@ function getSomeTickets(currentTicketNumbers, targetTicketNumbers, currentTicket
         return currentTicketInfo
     }
     else{
-        Ticket.findOne({where: {isSold:false, id:{lte: 450}}}).then(function(ticket){
+        Ticket.findOne({where: {isSold:false, id:{lte: 1000}}}).then(function(ticket){
             if (ticket){
                 console.log("ticket.id: " + ticket.id)
                 ticket.updateAttributes({
-                    isSold:true
+                    isSold:true,
+                    email:emailAddress
                 }).then(function(updated){
                     thisTicketInfo = []
                     thisTicketInfo["ticketId"] = ticket.id
