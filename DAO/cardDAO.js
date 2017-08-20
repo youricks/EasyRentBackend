@@ -306,7 +306,7 @@ module.exports = {
                 }
             }
             else {
-                res.end("Ticket is not valid")
+                res.end("Ticket is not valid, ticket id: " + req.params.id)
             }
         })
     }
