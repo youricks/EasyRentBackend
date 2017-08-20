@@ -1,16 +1,12 @@
 {
   "name": "node-api",
   "engines": {
-	"node": "7.4.0"	
+    "node": "7.4.0"
   },
   "main": "server.js",
   "license": "Apache-2.0",
   "dependencies": {
-	"firebase-admin":"latest",
-    "log4js":"latest",
-	"geopoint":"latest",
-	"geolib":"latest",
-	"GeoMatrix": "latest",
+    "GeoMatrix": "latest",
     "babel-core": "^6.11.4",
     "babel-loader": "^6.2.4",
     "babel-plugin-react-transform": "^2.0.2",
@@ -22,20 +18,26 @@
     "cloudinary": "latest",
     "express": "^4.14.0",
     "express-stormpath": "^3.1.3",
+    "firebase-admin": "latest",
     "formidable": "latest",
+    "geolib": "latest",
     "geopoint": "latest",
     "globals": "^9.9.0",
     "google-distance": "latest",
     "googleapis": "^16.1.0",
     "history": "^3.0.0",
+    "log4js": "latest",
     "moment": "latest",
     "mongoose": "~3.6.13",
     "morgan": "^1.7.0",
     "multer": "latest",
     "multiparty": "latest",
     "mysql": "*",
+    "nodemailer": "^4.0.1",
     "ora": "^0.3.0",
     "pg": "*",
+    "qrcode": "*",
+    "qr-image": "*",
     "react": "^15.2.1",
     "react-document-title": "^2.0.2",
     "react-dom": "^15.2.1",
@@ -43,9 +45,8 @@
     "react-stormpath": "^1.3.1",
     "require-dir": "*",
     "sequelizer": "*",
-    "webpack": "^1.13.1",
     "stripe": "*",
-    "qrcode": "*"
+    "webpack": "^1.13.1"
   },
   "devDependencies": {
     "webpack-dev-middleware": "^1.6.1"
