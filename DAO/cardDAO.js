@@ -48,7 +48,7 @@ module.exports = {
     console.log(req.body.token)
     console.log(req.body.amount)
     console.log(req.body.wechat)
-    /*
+
     // Check if any error in parameter. Will not charge if anything missing
     if (!req.body.id  || !req.body.amount || !req.body.wechat) {
         console.log("Invalid purchase request")
@@ -99,6 +99,6 @@ module.exports = {
         res.status(500).send(err);
       }
     });
-    */
+    
   }
 }
