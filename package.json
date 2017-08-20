@@ -27,7 +27,7 @@
     "googleapis": "^16.1.0",
     "history": "^3.0.0",
     "sharp": "*",
-    "log4js": "latest",
+    "log4js": "1.1.1",
     "moment": "latest",
     "mongoose": "~3.6.13",
     "morgan": "^1.7.0",
