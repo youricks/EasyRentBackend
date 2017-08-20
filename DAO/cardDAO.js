@@ -2,6 +2,8 @@ var pg = require('pg');
 const fs = require('fs');
 var match = process.env.DATABASE_URL.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)/)
 var applicationPassword = process.env.APP_PASSWORD
+var QRCode = require('qrcode')
+
 var Sequelize = require('sequelize');
 var sequelize = new Sequelize(match[5], match[1], match[2], {
     dialect:  'postgres',
@@ -13,8 +15,6 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
       ssl: true
   }
 });
-var nodemailer = require('nodemailer')
-var stripe = require("stripe")("sk_live_vFlGvmxllCwWvX8mS5kk3FOo")
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
@@ -44,28 +44,12 @@ var Purchase = sequelize.define('Purchase', {
 
 Purchase.sync()
 
+var stripe = require("stripe")("sk_live_vFlGvmxllCwWvX8mS5kk3FOo");
 
 // Token is created using Stripe.js or Checkout!
 // Get the payment token ID submitted by the form:
 var token = ""; // Using Express
 var TICKET_PRICE = 65;
-var authInfo = fs.readFileSync('authInfo.txt').toString().split('\n');
-var qr = require('qr-image')
-
-console.log(authInfo[0])
-console.log(authInfo[1])
-
-
-var transporter = nodemailer.createTransport({
-    host: "smtp.163.com",
-    secure: true,
-    port:465,
-    auth: {
-        user: authInfo[0],
-        pass: authInfo[1]
-
-    }
-});
 
 module.exports = {
   purchase: function(req,res,next) {
@@ -82,7 +66,7 @@ module.exports = {
         res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
         return;
     }
-    /* delete this line
+    /**/
     // Charge the user's card:
     var charge = stripe.charges.create({
       amount: req.body.amount,
@@ -101,13 +85,8 @@ module.exports = {
       if (charge){
         console.log("charge");
         console.log(charge);
-        delete this line */ 
-        var images = []
-        var attachment = []
-
         for (var count=0; count<req.body.ticketNumber; count++){
           // Create Puchase Record
-          var thisNum = count
           Purchase.create({
               userId: req.body.id,
               amount: TICKET_PRICE,
@@ -116,66 +95,22 @@ module.exports = {
           }).then(function(newPurchase){
               console.log("Purchase Success");
               console.log(newPurchase["dataValues"]);
-              var generatedQRString = "" + newPurchase["dataValues"]["id"] +  "_" + newPurchase["dataValues"]["email"] + "_" + newPurchase["dataValues"]["createdAt"]
-              console.log("qrString: " + generatedQRString)
+              var qr = "" + newPurchase["dataValues"]["id"] +  "_" + newPurchase["dataValues"]["email"] + "_" + newPurchase["dataValues"]["createdAt"]
+              console.log("qrString: " + qr)
               
-              //create image
-              var path = 'ticket_record_' + thisNum + '.png'
-              images[thisNum] = 'ticket_record_' + thisNum + '.png'
-              var fileType = 'png'
-              var qr_png = qr.image(generatedQRString, { type: fileType});
-              qr_png.pipe(fs.createWriteStream(path));
-
-              theAttachment = {filename: images[thisNum], path: images[thisNum]}
-              attachment[thisNum] = theAttachment
-
-
               Purchase.findOne({where: {id:newPurchase["dataValues"]["id"]}}).then(function(object){
                   console.log(object)
                   if (object){
                       object.updateAttributes({
-                          qrString: generatedQRString
+                          qrString: qr
                       });
                   }
               })     
 
-              console.log("thisNum: " + thisNum)
-              console.log("req.body.ticketNumber: " + req.body.ticketNumber)
-              // send email
-              if (thisNum == req.body.ticketNumber-1){
-                  console.log("To send the email now")
-                  var mailOptions = {
-                      from: 'easyrent_2017@163.com', // 发件地址
-                      to: req.body.email, // 收件列表
-                      subject: 'EasyRent购票凭证', // 标题
-                      //text和html两者只支持一种
-                      html: "<h2>购票凭证</h2><h3>二维码在附件</h3>",
-                      attachments: attachment
-                  }
-                  console.log("before sending email")
-
-                  // send mail with defined transport object
-                  transporter.sendMail(mailOptions, function(error, info){
-                      if(error){
-                          console.log("email error")
-                          return console.log(error);
-                      }
-                      console.log('Message sent: ' + info.response);
-
-                  });
-
-                  try{
-                      for (var num=0; num<images.length; num++){
-                          fs.unlinkSync(images[num])
-                      }
-                  }catch(e){
-                     // Handle error
-                     console.log('png file does not exist')
-                  }
-              }
-
-
-
+              QRCode.toDataURL(qr, function (err, url) {
+                console.log(url)
+                // send email here
+              })
                
           }).catch(function (error){
               console.log("FAILEDDDDDDDDDD");
@@ -188,17 +123,14 @@ module.exports = {
               res.status(500).send(error);
           }); 
         }
-        
         next()
         
-        /* delete this line
       }
       else{
         console.log("opps, no charge");
         res.status(500).send(err);
       }
     });
-    delete this line*/  
 
   }
 }
