@@ -10,7 +10,7 @@ router.post('/ticket/purchase',
 	}, 
 	cardDAO.purchase, 
 	function(req, res, next) {
-    	res.json({message : "Purchase Success"});
+    	res.json({message : req.message, post: req.posts});
 });
 
 module.exports = router;
