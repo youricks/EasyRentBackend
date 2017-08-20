@@ -26,7 +26,7 @@
     "google-distance": "latest",
     "googleapis": "^16.1.0",
     "history": "^3.0.0",
-	"sharp": "latest",
+    "sharp": "*",
     "log4js": "latest",
     "moment": "latest",
     "mongoose": "~3.6.13",
