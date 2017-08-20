@@ -1,5 +1,7 @@
 const HOST_ADDRESS = "https://haoyizu.herokuapp.com/"
 //const HOST_ADDRESS = "http://192.168.31.53:5432/" 
+//const HOST_ADDRESS = "http://192.168.16.108:5432/" 
+
 const sharp = require("sharp");
 
 var pg = require('pg');
@@ -125,7 +127,7 @@ function sendEmail(currentTicketInfo, emailAddress){
         images[imageCount] = ticketName
         qrCodes[imageCount] = path
         var fileType = 'png'
-        var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketId, { type: fileType});
+        var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType});
         var stream = qr_png.pipe(fs.createWriteStream(path));
 
         theAttachment = {filename: ticketName, path: ticketName}
@@ -234,7 +236,7 @@ module.exports = {
             res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
             return;
         }
-        /* delete this line
+        /* delete this line*/
         // Charge the user's card:
         var charge = stripe.charges.create({
           amount: req.body.amount,
@@ -253,8 +255,7 @@ module.exports = {
           if (charge){
             console.log("charge");
             console.log(charge);
-            delete this line */ 
-            
+            /*delete this line */ 
 
             Purchase.create({
                 userId: req.body.id,
@@ -286,14 +287,14 @@ module.exports = {
             }); 
             next()
             
-            /* delete this line
+            /* delete this line */
           }
           else{
             console.log("opps, no charge");
             res.status(500).send(err);
           }
         });
-        delete this line*/  
+        /*delete this line*/  
 
     },
     verify: function(req,res,next) {
@@ -303,7 +304,7 @@ module.exports = {
         Ticket.findOne({where: {isValid:true, code:ticketId}}).then(function(ticket){
             if (ticket){ 
                 if (ticket.isSold) {
-                    res.end("Tickt is valid")
+                    res.end("Tickt is valid, ticket id: " + req.params.id)
                 }
                 else {
                     res.end("Ticket is valid but not sold")
