@@ -1,5 +1,5 @@
-//const HOST_ADDRESS = "https://haoyizu.herokuapp.com/"
-const HOST_ADDRESS = "http://192.168.31.53:5432/" 
+const HOST_ADDRESS = "https://haoyizu.herokuapp.com/"
+//const HOST_ADDRESS = "http://192.168.31.53:5432/" 
 const sharp = require("sharp");
 
 var pg = require('pg');
