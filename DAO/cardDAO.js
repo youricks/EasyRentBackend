@@ -175,7 +175,6 @@ function sendEmail(currentTicketInfo, emailAddress){
                         transporter.sendMail(mailOptions, function(error, info){
                             if(error){
                                 console.log("email error")
-                                return console.log(error);
                             }
                             console.log('Message sent: ' + info.response);
                             try{

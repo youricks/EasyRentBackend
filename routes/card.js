@@ -6,8 +6,8 @@ var PRICE = 69
 var TAX = 1.13
 router.post('/ticket/purchase',
 	function(req, res, next) {
-        req.body.amount = 50
-    	//req.body.amount = Math.ceil(req.body.amount * 100 * PRICE * TAX);
+        //req.body.amount = 50
+    	req.body.amount = Math.ceil(req.body.amount * 100 * PRICE * TAX);
     	res.header("Access-Control-Allow-Origin", "*");
     	next()
 	}, 
