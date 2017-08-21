@@ -127,7 +127,7 @@ function sendEmail(currentTicketInfo, emailAddress){
         images[imageCount] = ticketName
         qrCodes[imageCount] = path
         var fileType = 'png'
-        var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType});
+        var qr_png = qr.image(HOST_ADDRESS + "ticket/verify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType, size: 9});
         var stream = qr_png.pipe(fs.createWriteStream(path));
 
         theAttachment = {filename: ticketName, path: ticketName}
@@ -137,7 +137,7 @@ function sendEmail(currentTicketInfo, emailAddress){
             var source = currentTicketInfo[streamDoneCount]["ticketId"] + '_ticket_record_' + streamDoneCount + '.png'
             var target = currentTicketInfo[streamDoneCount]["ticketId"] + "_Ticket" + streamDoneCount + ".jpg"
             streamDoneCount += 1
-            sharp("ticket_background.png").overlayWith(source, { top: 667, left: 341 }).toFile(target, function(err, info) {
+            sharp("ticket_background.png").overlayWith(source, { top: 642, left: 1710 }).toFile(target, function(err, info) {
                 // output.dzi is the Deep Zoom XML definition
                 // output_files contains 512x512 tiles grouped by zoom level
                 overLayCount += 1
@@ -149,6 +149,7 @@ function sendEmail(currentTicketInfo, emailAddress){
                     console.log(info)
                     console.log(currentTicketInfo.length)
                     console.log(streamDoneCount)
+                    
                     if (overLayCount == currentTicketInfo.length){
                         console.log("To send the email now")
                         var code = ""
@@ -209,7 +210,7 @@ function getSomeTickets(currentTicketNumbers, targetTicketNumbers, currentTicket
         return currentTicketInfo
     }
     else{
-        Ticket.findOne({where: {isSold:false, id:{lte: 1000}}}).then(function(ticket){
+        Ticket.findOne({where: {isSold:false, id:{lte: 2000}}}).then(function(ticket){
             if (ticket){
                 console.log("ticket.id: " + ticket.id)
                 ticket.updateAttributes({
@@ -231,6 +232,7 @@ function getSomeTickets(currentTicketNumbers, targetTicketNumbers, currentTicket
         })
     }
 }
+
 
 module.exports = {
     purchase: function(req,res,next) {
@@ -312,17 +314,22 @@ module.exports = {
         var ticketId = req.params.id
         console.log(ticketId)
         console.log("caonima")
-        Ticket.findOne({where: {isValid:true, code:ticketId}}).then(function(ticket){
-            if (ticket){ 
-                if (ticket.isSold) {
-                    res.end("Tickt is valid, ticket id: " + req.params.id)
+        Ticket.findOne({where: {code:ticketId}}).then(function(ticket){
+            if (ticket) {
+                if (ticket.isValid){ 
+                    if (ticket.isSold) {
+                        res.end("Tickt is valid, ticket id: " + req.params.id)
+                    }
+                    else {
+                        res.end("Ticket is valid but not sold")
+                    }
                 }
                 else {
-                    res.end("Ticket is valid but not sold")
+                    res.end("Ticket is valid. But it has been scanned. ticket id: " + req.params.id)
                 }
             }
             else {
-                res.end("Ticket is not valid, ticket id: " + req.params.id)
+                res.end("Tick is invalid")
             }
         })
     }
