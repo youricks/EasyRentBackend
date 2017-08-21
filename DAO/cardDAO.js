@@ -103,12 +103,10 @@ var authInfo = fs.readFileSync('authInfo.txt').toString().split('\n');
 var qr = require('qr-image')
 
 var transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    secure: true,
-    port:465,
+    service: "QQ",
     auth: {
-        user: "maplecarinc@gmail.com",
-        pass: "12maple21"
+        user: "439842225@qq.com",
+        pass: "iwsffbmaxhxsbifa"
 
     }
 });
@@ -159,7 +157,7 @@ function sendEmail(currentTicketInfo, emailAddress){
                             }
                         }
                         var mailOptions = {
-                            from: 'easyrent_2017@163.com', // 发件地址
+                            from: '439842225@qq.com', // 发件地址
                             to: emailAddress, // 收件列表
                             subject: '门票购票凭证', // 标题
                             //text和html两者只支持一种
