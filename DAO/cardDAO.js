@@ -103,12 +103,12 @@ var authInfo = fs.readFileSync('authInfo.txt').toString().split('\n');
 var qr = require('qr-image')
 
 var transporter = nodemailer.createTransport({
-    host: "smtp.163.com",
+    host: "smtp.gmail.com",
     secure: true,
     port:465,
     auth: {
-        user: authInfo[0],
-        pass: authInfo[1]
+        user: "maplecarinc@gmail.com",
+        pass: "12maple21"
 
     }
 });
