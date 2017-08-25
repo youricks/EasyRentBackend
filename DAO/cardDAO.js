@@ -21,6 +21,7 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
 });
 var nodemailer = require('nodemailer')
 var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
+var validCode = ['sbyrz', 'zjhzsb', 'yrzshierzi']
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
@@ -102,11 +103,64 @@ var Ticket = sequelize.define('Ticket', {
       freezeTableName: true // Model tableName will be the same as the model name
 });
 
+var VIPTicket = sequelize.define('VIPTicket', {
+    code: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+    },
+    email: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    isValid: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
+    },
+    isSold: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
+    },
+    tableNumber: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    ticketType: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    comment: {
+        type: Sequelize.STRING,
+        allowNull: true
+    }
+    }, {
+      freezeTableName: true // Model tableName will be the same as the model name
+});
+
 
 Purchase.sync()
 CodeRecord.sync()
 Ticket.sync()
-//Ticket.drop()
+VIPTicket.sync()
+
+console.log("rrrrrr")
+
+/*
+VIPTicket.create({
+    code: 'table' + '_' + Math.random().toString(36).substr(2),
+    email: "",
+    isValid: true,
+    isSold: true,
+    tableNumber: "wf5",
+    type: "",
+    comment: ""
+}).then(function(newTicket){
+     console.log("new ticket is created")
+}).catch(function (error){
+    console.log(error)
+    console.log("failed to create ticket");
+});
+*/
 
 /*
 // tickets creation
@@ -260,6 +314,15 @@ function getSomeTickets(currentTicketNumbers, targetTicketNumbers, currentTicket
     }
 }
 
+function contains(arr, obj) {
+  var index = arr.length;
+  while (index--) {
+    if (arr[index] === obj) {
+      return true;
+    }
+  }
+  return false;
+}
 
 module.exports = {
     purchase: function(req,res,next) {
@@ -377,5 +440,17 @@ module.exports = {
                 res.end("Tick is invalid")
             }
         })
+    },
+    codeVerify: function (req, res, next) {
+        var code = req.params.code
+        code = "aaa"
+        console.log("code: " + code)
+        if(contains(validCode, code)){
+            console.log("found")
+        }
+        else{
+            console.log("not found")            
+        }
+        next()
     }
 }
