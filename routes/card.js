@@ -22,6 +22,12 @@ router.get('/ticket/verify/:id',
     	res.json({message : "Purchase Success"});
 });
 
+router.get('/ticket/vipverify/:id',
+    cardDAO.vipVerify, 
+    function(req, res, next) {
+        res.json({message : "Purchase Success"});
+});
+
 router.post('/code/verify',
     cardDAO.codeVerify,
     function(req, res, next) {

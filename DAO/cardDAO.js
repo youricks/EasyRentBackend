@@ -144,6 +144,11 @@ Ticket.sync()
 VIPTicket.sync()
 
 console.log("rrrrrr")
+/*
+var fileType = 'png'
+var qr_png = qr.image(HOST_ADDRESS + "ticket/vipverify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType, size: 9});
+var stream = qr_png.pipe(fs.createWriteStream("code.png"));
+*/
 
 /*
 VIPTicket.create({
@@ -441,6 +446,9 @@ module.exports = {
             }
         })
     },
+    vipVerify: function(req,res,next){
+        res.end("success")
+    }
     codeVerify: function (req, res, next) {
         var code = req.params.code
         code = "aaa"
