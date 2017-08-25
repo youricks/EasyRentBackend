@@ -49,6 +49,36 @@ var Purchase = sequelize.define('Purchase', {
       freezeTableName: true // Model tableName will be the same as the model name
 });
 
+var CodeRecord = sequelize.define('CodeRecord', {
+    userId: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        //unique: true,
+        //primaryKey: true
+    },
+    amount: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
+    ticketNumber: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
+    wechat: {
+        type: Sequelize.STRING,
+        allowNull: false
+    }, 
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    promotionalCode: {
+        type: Sequelize.STRING,
+        allowNull: false
+    }
+    }, {
+      freezeTableName: true // Model tableName will be the same as the model name
+});
 
 var Ticket = sequelize.define('Ticket', {
     code: {
@@ -74,6 +104,7 @@ var Ticket = sequelize.define('Ticket', {
 
 
 Purchase.sync()
+CodeRecord.sync()
 Ticket.sync()
 //Ticket.drop()
 
@@ -93,7 +124,6 @@ for (var ticketOrder=1; ticketOrder<=3500; ticketOrder++){
     });
 }
 */
-
 
 
 // Token is created using Stripe.js or Checkout!
@@ -246,6 +276,13 @@ module.exports = {
             res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
             return;
         }
+        /*
+        if (req.body.promotionalCode != ''){
+            var newPrice = 11
+            var TAX = 1.13
+            req.body.amount = Math.ceil(req.body.ticketNumber * 100 * newPrice * TAX);
+        }
+        */
         /* delete this line*/
         // Charge the user's card:
         var charge = stripe.charges.create({
@@ -275,6 +312,17 @@ module.exports = {
                 ticketNumber: req.body.ticketNumber
             }).then(function(newPurchase){
                  console.log("purchase succeed")
+                 /*
+                 CodeRecord.create({
+                    userId: req.body.id,
+                    amount: req.body.amount,
+                    wechat: req.body.wechat,
+                    email: req.body.email,
+                    ticketNumber: req.body.ticketNumber,
+                    promotionalCode :req.body.promotionalCode
+                })
+                */
+
                  // retrieve the ticket ids
                  var retrievedTicketInfo = getSomeTickets(0, req.body.ticketNumber, [], req.body.email)
             }).catch(function (error){
