@@ -22,6 +22,7 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
 var nodemailer = require('nodemailer')
 var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
 var validCode = ['sbyrz', 'zjhzsb', 'yrzshierzi']
+var qr = require('qr-image')
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
@@ -144,9 +145,10 @@ Ticket.sync()
 VIPTicket.sync()
 
 console.log("rrrrrr")
+
 /*
 var fileType = 'png'
-var qr_png = qr.image(HOST_ADDRESS + "ticket/vipverify/" + currentTicketInfo[imageCount].ticketCode, { type: fileType, size: 9});
+var qr_png = qr.image(HOST_ADDRESS + "ticket/vipverify/" + "table_90ckn1u0nnho8sbjned841jor", { type: fileType, size: 9});
 var stream = qr_png.pipe(fs.createWriteStream("code.png"));
 */
 
@@ -189,7 +191,6 @@ for (var ticketOrder=1; ticketOrder<=3500; ticketOrder++){
 // Get the payment token ID submitted by the form:
 var token = ""; // Using Express
 var authInfo = fs.readFileSync('authInfo.txt').toString().split('\n');
-var qr = require('qr-image')
 
 var transporter = nodemailer.createTransport({
     service: "QQ",
@@ -448,7 +449,7 @@ module.exports = {
     },
     vipVerify: function(req,res,next){
         res.end("success")
-    }
+    },
     codeVerify: function (req, res, next) {
         var code = req.params.code
         code = "aaa"
