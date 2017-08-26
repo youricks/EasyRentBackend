@@ -21,7 +21,7 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
 });
 var nodemailer = require('nodemailer')
 var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
-var validCode = ['sbyrz', 'zjhzsb', 'yrzshierzi', 'sbyrz']
+var validCode = ['sbyc', 'hbcpyc', 'ycshierzi', 'sbyccaonima']
 var qr = require('qr-image')
 var PRICE = 50
 var TAX = 1.13
@@ -462,6 +462,7 @@ module.exports = {
             console.log("found")
             req.isVerified = true
             req.isValid = true
+            next()
         }
         // If code given incorrect, return error directly
         else{
@@ -470,6 +471,5 @@ module.exports = {
             req.isValid = false
             res.status(500).send("Incorrect Code Given")
         }
-        next()
     }
 }

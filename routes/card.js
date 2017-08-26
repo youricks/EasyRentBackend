@@ -36,7 +36,7 @@ router.get('/ticket/vipverify/:id',
 router.post('/code/verify',
     cardDAO.codeVerify,
     function(req, res, next) {
-    res.json({isVerified: req.isVerified, isValid: req.isValid});
+        res.json({isVerified: req.isVerified, isValid: req.isValid});
 });
 
 router.get('/ticket/price', function(req, res, next) {
