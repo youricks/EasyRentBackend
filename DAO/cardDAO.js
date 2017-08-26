@@ -349,12 +349,6 @@ module.exports = {
             return;
         }
 
-        if (req.body.isCodeValid){
-            PRICE = 60
-        }
-        //req.body.amount = Math.ceil(req.body.amount * 100 * PRICE * TAX);
-        req.body.amount = Math.ceil(req.body.amount * PRICE);
-        
         /* delete this line*/
         // Charge the user's card:
         var charge = stripe.charges.create({
@@ -432,7 +426,7 @@ module.exports = {
         console.log("caonima")
         Ticket.findOne({where: {code:ticketId}}).then(function(ticket){
             if (ticket) {
-                if (ticket.isValid){ 
+                if (ticket.isValid){
                     if (ticket.isSold) {
                         res.end("Tickt is valid, ticket id: " + req.params.id)
                     }
@@ -455,15 +449,26 @@ module.exports = {
     codeVerify: function (req, res, next) {
         var code = req.body.code
         console.log("code: " + code)
+
+        // If no code given, just pass
+        if (!code) {
+            req.isVerified = true
+            req.isValid = false
+            next()
+        }
+
+        // If correct code given, 
         if(contains(validCode, code)){
             console.log("found")
             req.isVerified = true
             req.isValid = true
         }
+        // If code given incorrect, return error directly
         else{
             console.log("not found")
             req.isVerified = true
-            req.isValid = false        
+            req.isValid = false
+            res.status(500).send("Incorrect Code Given")
         }
         next()
     }

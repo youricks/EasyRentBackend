@@ -1,9 +1,18 @@
 var express  = require('express');
 var router = express.Router();
 var cardDAO = require('../DAO/cardDAO.js');
+var TAX = 1.13
 
 router.post('/ticket/purchase',
+    cardDAO.codeVerify,
 	function(req, res, next) {
+        // Executed iff code has been given
+        if (req.body.isValid){
+            req.body.amount = Math.ceil(req.body.amount * 100 * 69 * TAX);
+        } 
+        else {
+            req.body.amount = Math.ceil(req.body.amount * 100 * 79 * TAX);
+        }
     	res.header("Access-Control-Allow-Origin", "*");
     	next()
 	}, 
