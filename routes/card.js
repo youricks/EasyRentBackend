@@ -1,13 +1,9 @@
 var express  = require('express');
 var router = express.Router();
-
 var cardDAO = require('../DAO/cardDAO.js');
-var PRICE = 69
-var TAX = 1.13
+
 router.post('/ticket/purchase',
 	function(req, res, next) {
-        //req.body.amount = 50
-    	req.body.amount = Math.ceil(req.body.amount * 100 * PRICE * TAX);
     	res.header("Access-Control-Allow-Origin", "*");
     	next()
 	}, 
@@ -31,7 +27,7 @@ router.get('/ticket/vipverify/:id',
 router.post('/code/verify',
     cardDAO.codeVerify,
     function(req, res, next) {
-    res.json({message : "Purchase Success"});
+    res.json({isVerified: req.isVerified, isValid: req.isValid});
 });
 
 router.get('/ticket/price', function(req, res, next) {

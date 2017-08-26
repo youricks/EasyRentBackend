@@ -21,8 +21,10 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
 });
 var nodemailer = require('nodemailer')
 var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
-var validCode = ['sbyrz', 'zjhzsb', 'yrzshierzi']
+var validCode = ['sbyrz', 'zjhzsb', 'yrzshierzi', 'sbyrz']
 var qr = require('qr-image')
+var PRICE = 50
+var TAX = 1.13
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
@@ -338,6 +340,7 @@ module.exports = {
         console.log(req.body.wechat)
         console.log(req.body.ticketNumber)
         console.log(req.body.email)
+        //req.body.amount = 50
 
         // Check if any error in parameter. Will not charge if anything missing
         if (!req.body.id  || !req.body.amount || !req.body.wechat || !req.body.ticketNumber || !req.body.email) {
@@ -345,13 +348,13 @@ module.exports = {
             res.status(400).send("Invalid Request. Please check your parameters. Card not charged");
             return;
         }
-        /*
-        if (req.body.promotionalCode != ''){
-            var newPrice = 11
-            var TAX = 1.13
-            req.body.amount = Math.ceil(req.body.ticketNumber * 100 * newPrice * TAX);
+
+        if (req.body.isCodeValid){
+            PRICE = 60
         }
-        */
+        //req.body.amount = Math.ceil(req.body.amount * 100 * PRICE * TAX);
+        req.body.amount = Math.ceil(req.body.amount * PRICE);
+        
         /* delete this line*/
         // Charge the user's card:
         var charge = stripe.charges.create({
@@ -381,16 +384,15 @@ module.exports = {
                 ticketNumber: req.body.ticketNumber
             }).then(function(newPurchase){
                  console.log("purchase succeed")
-                 /*
+                 
                  CodeRecord.create({
                     userId: req.body.id,
                     amount: req.body.amount,
                     wechat: req.body.wechat,
                     email: req.body.email,
                     ticketNumber: req.body.ticketNumber,
-                    promotionalCode :req.body.promotionalCode
+                    promotionalCode :req.body.code
                 })
-                */
 
                  // retrieve the ticket ids
                  var retrievedTicketInfo = getSomeTickets(0, req.body.ticketNumber, [], req.body.email)
@@ -451,14 +453,17 @@ module.exports = {
         res.end("success")
     },
     codeVerify: function (req, res, next) {
-        var code = req.params.code
-        code = "aaa"
+        var code = req.body.code
         console.log("code: " + code)
         if(contains(validCode, code)){
             console.log("found")
+            req.isVerified = true
+            req.isValid = true
         }
         else{
-            console.log("not found")            
+            console.log("not found")
+            req.isVerified = true
+            req.isValid = false        
         }
         next()
     }
