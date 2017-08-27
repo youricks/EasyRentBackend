@@ -21,7 +21,7 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
 });
 var nodemailer = require('nodemailer')
 var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
-var validCode = ['sbyc', 'hbcpyc', 'ycshierzi', 'sbyccaonima']
+var validCode = ['932648', '391842', '405917', '630717', '727538', '260831', '291739', '318427', '591837', '517396']
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
@@ -422,28 +422,63 @@ module.exports = {
     verify: function(req,res,next) {
         var ticketId = req.params.id
         console.log(ticketId)
-        console.log("caonima")
         Ticket.findOne({where: {code:ticketId}}).then(function(ticket){
             if (ticket) {
                 if (ticket.isValid){
                     if (ticket.isSold) {
-                        res.end("Tickt is valid, ticket id: " + req.params.id)
+                        res.end("此票有效，请入场。票号为: " + req.params.id)
+                        /*
+                        ticket.updateAttributes({
+                            isValid:false,
+                        }).then(function(updated){
+                            res.end("此票有效，票号为: " + req.params.id)
+                        })
+                        */
+
                     }
                     else {
-                        res.end("Ticket is valid but not sold")
+                        res.end("此票并未出售。请联系技术人员。票号为: " + req.params.id)
                     }
                 }
                 else {
-                    res.end("Ticket is valid. But it has been scanned. ticket id: " + req.params.id)
+                    res.end("抱歉，此票已经被扫。票号为: " + req.params.id)
                 }
             }
             else {
-                res.end("Tick is invalid")
+                res.end("此票无效")
             }
         })
     },
     vipVerify: function(req,res,next){
-        res.end("success")
+        var ticketId = req.params.id
+        console.log(ticketId)
+        VIPTicket.findOne({where: {code:ticketId}}).then(function(ticket){
+            if (ticket) {
+                if (ticket.isValid){
+                    if (ticket.isSold) {
+                        res.end("此票有效，请入场。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
+                        /*
+                        ticket.updateAttributes({
+                            isValid:false,
+                        }).then(function(updated){
+                            res.end("此票有效，请入场。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
+                        })
+                        */
+
+                    }
+                    else {
+                        res.end("此票并未出售。请联系技术人员。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
+                    }
+                }
+                else {
+                    res.end("抱歉，此票已经被扫。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
+                }
+            }
+            else {
+                res.end("此票无效")
+            }
+        })
+
     },
     codeVerify: function (req, res, next) {
         var code = req.body.code
