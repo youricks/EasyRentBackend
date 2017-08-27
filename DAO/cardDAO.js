@@ -1,7 +1,7 @@
 const HOST_ADDRESS = "https://haoyizu.herokuapp.com/"
 //const HOST_ADDRESS = "http://192.168.31.53:5432/" 
 //const HOST_ADDRESS = "http://192.168.16.108:5432/" 
-
+var qr = require('qr-image')
 const sharp = require("sharp");
 
 var pg = require('pg');
@@ -22,9 +22,6 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
 var nodemailer = require('nodemailer')
 var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
 var validCode = ['sbyc', 'hbcpyc', 'ycshierzi', 'sbyccaonima']
-var qr = require('qr-image')
-var PRICE = 50
-var TAX = 1.13
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
@@ -351,6 +348,8 @@ module.exports = {
 
         /* delete this line*/
         // Charge the user's card:
+        console.log("going to charge");
+        console.log(req.body.amount);
         var charge = stripe.charges.create({
           amount: req.body.amount,
           currency: "cad",
@@ -448,25 +447,27 @@ module.exports = {
     },
     codeVerify: function (req, res, next) {
         var code = req.body.code
-        console.log("code: " + code)
+        console.log("code:==" + code + "===")
 
         // If no code given, just pass
         if (!code) {
+            console.log("no code is given")
             req.isVerified = true
             req.isValid = false
             next()
+            return;
         }
 
         // If correct code given, 
         if(contains(validCode, code)){
-            console.log("found")
+            console.log("Code is right")
             req.isVerified = true
             req.isValid = true
             next()
         }
         // If code given incorrect, return error directly
         else{
-            console.log("not found")
+            console.log("Code is wrong")
             req.isVerified = true
             req.isValid = false
             res.status(500).send("Incorrect Code Given")
