@@ -477,7 +477,7 @@ module.exports = {
             console.log("Code is wrong")
             req.isVerified = true
             req.isValid = false
-            res.status(500).send("Incorrect Code Given")
+            res.status(500).send("请确保PROMOTIONAL CODE栏为有效码，否则请清空")
         }
     }
 }
