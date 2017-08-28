@@ -21,7 +21,7 @@ var sequelize = new Sequelize(match[5], match[1], match[2], {
 });
 var nodemailer = require('nodemailer')
 var stripe = require("stripe")("sk_live_iODiHHQacpT1jU3VxiAhtWhf")
-var validCode = ['932648', '391842', '405917', '630717', '727538', '260831', '291739', '318427', '591837', '517396']
+var validCode = ['932648', '391842', '405917', '630717', '727538', '260831', '291739', '318427', '591837', '517396', 'localtestcode']
 
 var Purchase = sequelize.define('Purchase', {
     userId: {
