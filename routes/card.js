@@ -6,6 +6,7 @@ var TAX = 1.13
 router.post('/ticket/purchase',
     cardDAO.codeVerify,
 	function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
         // Executed iff code has been given
         if (req.isValid || req.id != "web"){
             console.log("isValid code entered")
@@ -15,7 +16,6 @@ router.post('/ticket/purchase',
             console.log("isInValid code entered")
             req.body.amount = Math.ceil(req.body.amount * 100 * 99 * TAX);
         }
-        res.header("Access-Control-Allow-Origin: *");
     	next()
 	}, 
 	cardDAO.purchase, 
@@ -38,6 +38,7 @@ router.get('/ticket/vipverify/:id',
 router.post('/code/verify',
     cardDAO.codeVerify,
     function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
         res.json({isVerified: req.isVerified, isValid: req.isValid});
 });
 
