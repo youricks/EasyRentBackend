@@ -450,35 +450,7 @@ module.exports = {
         })
     },
     vipVerify: function(req,res,next){
-        var ticketId = req.params.id
-        console.log(ticketId)
-        VIPTicket.findOne({where: {code:ticketId}}).then(function(ticket){
-            if (ticket) {
-                if (ticket.isValid){
-                    if (ticket.isSold) {
-                        res.end("此票有效，请入场。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
-                        /*
-                        ticket.updateAttributes({
-                            isValid:false,
-                        }).then(function(updated){
-                            res.end("此票有效，请入场。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
-                        })
-                        */
-
-                    }
-                    else {
-                        res.end("此票并未出售。请联系技术人员。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
-                    }
-                }
-                else {
-                    res.end("抱歉，此票已经被扫。票号为: " + req.params.id + "卡座号为: " + ticket.tableNumber)
-                }
-            }
-            else {
-                res.end("此票无效")
-            }
-        })
-
+        res.end("此票有效，请入场。")
     },
     codeVerify: function (req, res, next) {
         var code = req.body.code
