@@ -7,7 +7,7 @@ router.post('/ticket/purchase',
     cardDAO.codeVerify,
 	function(req, res, next) {
         // Executed iff code has been given
-        if (req.isValid){
+        if (req.isValid || req.id != "web"){
             console.log("isValid code entered")
             req.body.amount = Math.ceil(req.body.amount * 100 * 79 * TAX);
         } 
