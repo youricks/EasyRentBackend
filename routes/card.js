@@ -15,6 +15,7 @@ router.post('/ticket/purchase',
             console.log("isInValid code entered")
             req.body.amount = Math.ceil(req.body.amount * 100 * 99 * TAX);
         }
+        res.header("Access-Control-Allow-Origin: *");
     	next()
 	}, 
 	cardDAO.purchase, 
