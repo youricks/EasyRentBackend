@@ -7,10 +7,12 @@ router.post('/ticket/purchase',
     cardDAO.codeVerify,
 	function(req, res, next) {
         // Executed iff code has been given
-        if (req.body.isValid){
+        if (req.isValid){
+            console.log("isValid code entered")
             req.body.amount = Math.ceil(req.body.amount * 100 * 79 * TAX);
         } 
         else {
+            console.log("isInValid code entered")
             req.body.amount = Math.ceil(req.body.amount * 100 * 99 * TAX);
         }
     	res.header("Access-Control-Allow-Origin", "*");
