@@ -8,7 +8,7 @@ router.post('/ticket/purchase',
 	function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         // Executed iff code has been given
-        if (req.isValid || req.id != "web"){
+        if (req.isValid || req.body.id != "web"){
             console.log("isValid code entered")
             req.body.amount = Math.ceil(req.body.amount * 100 * 79 * TAX);
         } 
@@ -16,6 +16,7 @@ router.post('/ticket/purchase',
             console.log("isInValid code entered")
             req.body.amount = Math.ceil(req.body.amount * 100 * 99 * TAX);
         }
+        console.log("req.body.amount: " + req.body.amount)
     	next()
 	}, 
 	cardDAO.purchase, 
