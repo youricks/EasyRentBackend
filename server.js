@@ -4,6 +4,7 @@ var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var requireDir = require('require-dir');
 var log4js = require('log4js');
+const sharp = require("sharp");
 
 //Set the logger
 log4js.configure({
@@ -27,6 +28,26 @@ exports.logger=function(name){
   var logger = log4js.getLogger(name);
   logger.setLevel('INFO');
   return logger;
+}
+
+var fs = require("fs")  
+var path = require("path")  
+  
+var root = path.join("./unsoldTicket/OCAD")  
+var dirName = "Sheridan"
+readDirSync(root)  
+function readDirSync(path){  
+    var pa = fs.readdirSync(path);  
+    pa.forEach(function(ele,index){  
+        var info = fs.statSync(path+"/"+ele)      
+        if(info.isDirectory()){  
+            console.log("dir: "+ele)  
+            readDirSync(path+"/"+ele);  
+        }else{  
+            console.log("file: "+ele)
+            sharp("unsoldTicket/" + dirName + "/" + ele).overlayWith("unsoldTicket/background.png", { top: 0, left: 0 }).toFile("unsoldTicket/" + dirName + "_Fixed/" + ele, function(err, info) {console.log(err); console.log(info)});
+        }
+    })
 }
 
 // Mysql connection is done
