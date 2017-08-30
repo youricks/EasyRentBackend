@@ -185,7 +185,6 @@ for (var ticketOrder=1; ticketOrder<=3500; ticketOrder++){
 }
 */
 
-
 // Token is created using Stripe.js or Checkout!
 // Get the payment token ID submitted by the form:
 var token = ""; // Using Express
@@ -250,8 +249,8 @@ function sendEmail(currentTicketInfo, emailAddress){
                             to: emailAddress, // 收件列表
                             subject: '门票购票凭证', // 标题
                             //text和html两者只支持一种
-                            html: `<h2>恭喜您成功购得2017年9月15日将在Toronto Event Centre 举办的 MEET EDC IN TORONTO TICKET 1张。</h2>
-                            <p>TICKET TYPE： EARLY BIRD.</p>
+                            html: `<h2>恭喜您成功购得2017年9月15日将在Toronto Event Centre 举办的 EDC X 4PK 电子票。</h2>
+                            <p>TICKET TYPE： REGULAR.</p>
                             <p>TICKET NUMBER： ` + code + `</p>
                             <p>请于演出开始前一周到指定取票点取实体票， 线下取票点请关注CSSA， MAPLE CAR， TK， TAIYA AUTO公众号。 </p>
 
