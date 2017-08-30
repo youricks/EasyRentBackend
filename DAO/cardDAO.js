@@ -425,31 +425,31 @@ module.exports = {
             if (ticket) {
                 if (ticket.isValid){
                     if (ticket.isSold) {
-                        res.end("此票有效，请入场。票号为: " + req.params.id)
+                        res.end("This ticket is valid, the code is: " + req.params.id)
                         /*
                         ticket.updateAttributes({
                             isValid:false,
                         }).then(function(updated){
-                            res.end("此票有效，票号为: " + req.params.id)
+                            res.end("This ticket is valid, the code is: " + req.params.id)
                         })
                         */
 
                     }
                     else {
-                        res.end("此票并未出售。请联系技术人员。票号为: " + req.params.id)
+                        res.end("This ticket is not sold at all. Please contact with the progammer. The code is : " + req.params.id)
                     }
                 }
                 else {
-                    res.end("抱歉，此票已经被扫。票号为: " + req.params.id)
+                    res.end("Sorry, this ticket has been scanned already. The code is: " + req.params.id)
                 }
             }
             else {
-                res.end("此票无效")
+                res.end("This ticket is invalid")
             }
         })
     },
     vipVerify: function(req,res,next){
-        res.end("此票有效，请入场。")
+        res.end("This ticket is valid")
     },
     codeVerify: function (req, res, next) {
         var code = req.body.code
