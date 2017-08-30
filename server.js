@@ -4,7 +4,6 @@ var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var requireDir = require('require-dir');
 var log4js = require('log4js');
-const sharp = require("sharp");
 
 //Set the logger
 log4js.configure({
@@ -29,7 +28,8 @@ exports.logger=function(name){
   logger.setLevel('INFO');
   return logger;
 }
-
+/*
+const sharp = require("sharp");
 var fs = require("fs")  
 var path = require("path")  
   
@@ -49,6 +49,7 @@ function readDirSync(path){
         }
     })
 }
+*/
 
 // Mysql connection is done
 
