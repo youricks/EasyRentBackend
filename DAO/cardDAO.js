@@ -425,13 +425,14 @@ module.exports = {
             if (ticket) {
                 if (ticket.isValid){
                     if (ticket.isSold) {
-                        
+                        res.end("This ticket is valid, the code is: " + req.params.id)
+                        /*
                         ticket.updateAttributes({
                             isValid:false,
                         }).then(function(updated){
                             res.end("This ticket is valid, the code is: " + req.params.id)
                         })
-                        
+                        */
 
                     }
                     else {
